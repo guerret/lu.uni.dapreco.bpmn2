@@ -36,7 +36,7 @@ public class LRMLParser {
 		factory.setNamespaceAware(true);
 		try {
 			DocumentBuilder builder = factory.newDocumentBuilder();
-			doc = builder.parse("res" + File.separator + lrml);
+			doc = builder.parse(lrml);
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
 		} catch (SAXException | IOException e) {
