@@ -30,7 +30,7 @@ public class LRMLParser {
 	public static final Map<String, String> map = Map.ofEntries(Map.entry(lrmlPrefix, lrmlNS),
 			Map.entry(rulemlPrefix, rulemlNS), Map.entry(xmlPrefix, xmlNS));
 
-	LRMLParser(String lrml) {
+	public LRMLParser(String lrml) {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		factory.setNamespaceAware(true);
 		try {

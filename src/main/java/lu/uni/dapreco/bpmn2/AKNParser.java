@@ -28,7 +28,7 @@ public class AKNParser {
 	public static final Map<String, String> map = Map.ofEntries(Map.entry(aknPrefix, aknNS),
 			Map.entry(xmlPrefix, xmlNS));
 
-	AKNParser(String akn) {
+	public AKNParser(String akn) {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		factory.setNamespaceAware(true);
 		try {
