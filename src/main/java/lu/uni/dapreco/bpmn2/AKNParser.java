@@ -10,6 +10,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import lu.uni.dapreco.bpmn2.akn.Paragraph;
@@ -53,6 +54,16 @@ public class AKNParser {
 		default:
 			return node.getNodeName();
 		}
+	}
+
+	public String[] getExtendedRuleSet(String eId) {
+		String search = "//*[@eId='" + eId + "']/descendant::*[@eId]/@eId";
+		NodeList nl = xpath.parse(search);
+		String[] list = new String[nl.getLength() + 1];
+		list[0] = eId;
+		for (int i = 0; i < nl.getLength(); i++)
+			list[i + 1] = nl.item(i).getNodeValue();
+		return list;
 	}
 
 }

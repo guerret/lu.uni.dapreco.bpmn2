@@ -18,6 +18,11 @@ public class DKBValidation {
 			+ resDir + "/" + aknName;
 	// private static final String aknLocal = resDir + "/" + aknName;
 
+	private final static String graphName = "pronto-v8.graphml";
+	private static final String graphURI = "https://raw.githubusercontent.com/guerret/lu.uni.dapreco.bpmn2/master/"
+			+ resDir + "/" + graphName;
+	// private static final String aknLocal = resDir + "/" + aknName;
+
 	private static String aknPrefix = "GDPR";
 	private static String ontoPrefix = "prOnto";
 
@@ -30,11 +35,13 @@ public class DKBValidation {
 	private static LRMLParser lParser;
 	private static AKNParser aParser;
 	private static PrOntoParser oParser;
+	private static GraphParser gParser;
 
 	private DKBValidation() {
 		lParser = new LRMLParser(lrmlURI);
 		aParser = new AKNParser(aknURI);
 		oParser = new PrOntoParser(true);
+		gParser = new GraphParser(graphURI);
 	}
 
 	private String[] parseMissingFromSet(String[] workingSet, LRMLParser.RuleType type) {
@@ -62,11 +69,14 @@ public class DKBValidation {
 
 	private String[] parsePredicatesInSet(String[] workingSet, LRMLParser.RuleType type) {
 		Vector<String> predVec = new Vector<String>();
-		for (String rule : workingSet) {
-			String[] rulePredicates = lParser.findPredicatesInArticle(aknPrefix + ":" + rule, ontoPrefix, type);
-			for (String p : rulePredicates)
-				if (!predVec.contains(p))
-					predVec.add(p);
+		for (String baseRule : workingSet) {
+			String[] extended = aParser.getExtendedRuleSet(baseRule);
+			for (String rule : extended) {
+				String[] rulePredicates = lParser.findPredicatesInArticle(aknPrefix + ":" + rule, ontoPrefix, type);
+				for (String p : rulePredicates)
+					if (!predVec.contains(p))
+						predVec.add(p);
+			}
 		}
 		String[] predicates = new String[predVec.size()];
 		return predVec.toArray(predicates);

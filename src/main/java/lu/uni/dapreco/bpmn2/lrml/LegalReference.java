@@ -1,5 +1,7 @@
 package lu.uni.dapreco.bpmn2.lrml;
 
+import org.w3c.dom.NodeList;
+
 import lu.uni.dapreco.bpmn2.XPathParser;
 
 public class LegalReference {
@@ -24,6 +26,15 @@ public class LegalReference {
 		String search = "/lrml:LegalRuleML/lrml:LegalReferences/lrml:LegalReference[@refersTo='" + refersTo
 				+ "']/@refID";
 		String refID = xpath.parse(search).item(0).getNodeValue();
+		return new LegalReference(refersTo, refID);
+	}
+
+	public static LegalReference createFromRefId(String refID, XPathParser xpath) {
+		String search = "/lrml:LegalRuleML/lrml:LegalReferences/lrml:LegalReference[@refID='" + refID + "']/@refersTo";
+		NodeList nl = xpath.parse(search);
+		if (nl.getLength() == 0)
+			return null;
+		String refersTo = nl.item(0).getNodeValue();
 		return new LegalReference(refersTo, refID);
 	}
 

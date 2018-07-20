@@ -28,4 +28,12 @@ public class Association {
 		return new Association(source, target);
 	}
 
+	public static Association createFromArticle(String article, XPathParser xpath) {
+		String source = "#" + article;
+		String search = "/lrml:LegalRuleML/lrml:Associations/lrml:Association[lrml:appliesSource[@keyref='" + source
+				+ "']]/lrml:toTarget/@keyref";
+		String target = xpath.parse(search).item(0).getNodeValue();
+		return new Association(source, target);
+	}
+
 }

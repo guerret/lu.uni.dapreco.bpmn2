@@ -103,63 +103,57 @@ public class LRMLParser {
 	}
 
 	private Node[] getStatementNodesForArticle(String article, RuleType type) {
-		String[] statementSets = getStatementListForArticle(article);
+		String statementSet = getStatementListForArticle(article);
+		if (statementSet == null)
+			return new Node[0];
 		Vector<Node> statementsVector = new Vector<Node>();
-		for (String set : statementSets) {
-			String search;
-			switch (type) {
-			case OBLIGATIONS:
-				search = "/lrml:LegalRuleML/lrml:Statements[@key='" + set
-						+ "']/lrml:PrescriptiveStatement[ruleml:Rule/ruleml:then/lrml:Obligation]";
-				break;
-			case PERMISSIONS:
-				search = "/lrml:LegalRuleML/lrml:Statements[@key='" + set
-						+ "']/lrml:PrescriptiveStatement[ruleml:Rule/ruleml:then/lrml:Permission]";
-				break;
-			case CONSTITUTIVE:
-				search = "/lrml:LegalRuleML/lrml:Statements[@key='" + set + "']/lrml:ConstitutiveStatement";
-				break;
-			default:
-				search = "/lrml:LegalRuleML/lrml:Statements[@key='" + set
-						+ "']/lrml:PrescriptiveStatement|/lrml:LegalRuleML/lrml:Statements[@key='" + set
-						+ "']/lrml:ConstitutiveStatement";
-			}
-			NodeList nl = xpath.parse(search);
-			for (int i = 0; i < nl.getLength(); i++)
-				statementsVector.add(nl.item(i));
+		String search;
+		switch (type) {
+		case OBLIGATIONS:
+			search = "/lrml:LegalRuleML/lrml:Statements[@key='" + statementSet
+					+ "']/lrml:PrescriptiveStatement[ruleml:Rule/ruleml:then/lrml:Obligation]";
+			break;
+		case PERMISSIONS:
+			search = "/lrml:LegalRuleML/lrml:Statements[@key='" + statementSet
+					+ "']/lrml:PrescriptiveStatement[ruleml:Rule/ruleml:then/lrml:Permission]";
+			break;
+		case CONSTITUTIVE:
+			search = "/lrml:LegalRuleML/lrml:Statements[@key='" + statementSet + "']/lrml:ConstitutiveStatement";
+			break;
+		default:
+			search = "/lrml:LegalRuleML/lrml:Statements[@key='" + statementSet
+					+ "']/lrml:PrescriptiveStatement|/lrml:LegalRuleML/lrml:Statements[@key='" + statementSet
+					+ "']/lrml:ConstitutiveStatement";
 		}
+		NodeList nl = xpath.parse(search);
+		for (int i = 0; i < nl.getLength(); i++)
+			statementsVector.add(nl.item(i));
 		Node[] statements = new Node[statementsVector.size()];
 		return statementsVector.toArray(statements);
 	}
 
 	private String[] getStatementsForArticle(String article) {
-		String[] statementSets = getStatementListForArticle(article);
+		String statementSet = getStatementListForArticle(article);
+		if (statementSet == null)
+			return new String[0];
 		Vector<String> statementsVector = new Vector<String>();
-		for (String set : statementSets) {
-			String search = "/lrml:LegalRuleML/lrml:Statements[@key='" + set
-					+ "']/lrml:PrescriptiveStatement/@key|/lrml:LegalRuleML/lrml:Statements[@key='" + set
-					+ "']/lrml:ConstitutiveStatement/@key";
-			NodeList nl = xpath.parse(search);
-			for (int i = 0; i < nl.getLength(); i++)
-				statementsVector.add(nl.item(i).getNodeValue());
-		}
+		String search = "/lrml:LegalRuleML/lrml:Statements[@key='" + statementSet
+				+ "']/lrml:PrescriptiveStatement/@key|/lrml:LegalRuleML/lrml:Statements[@key='" + statementSet
+				+ "']/lrml:ConstitutiveStatement/@key";
+		NodeList nl = xpath.parse(search);
+		for (int i = 0; i < nl.getLength(); i++)
+			statementsVector.add(nl.item(i).getNodeValue());
 		String[] statements = new String[statementsVector.size()];
 		return statementsVector.toArray(statements);
 	}
 
-	private String[] getStatementListForArticle(String article) {
-		String search = "/lrml:LegalRuleML/lrml:LegalReferences/lrml:LegalReference[@refID='" + article
-				+ "']/@refersTo";
-		String[] statements = null;
-		NodeList nl = xpath.parse(search);
-		statements = new String[nl.getLength()];
-		for (int i = 0; i < nl.getLength(); i++) {
-			String ref = nl.item(i).getNodeValue();
-			search = "/lrml:LegalRuleML/lrml:Associations/lrml:Association[lrml:appliesSource/@keyref='#" + ref
-					+ "']/lrml:toTarget/@keyref";
-			statements[i] = xpath.parse(search).item(0).getNodeValue().substring(1);
-		}
-		return statements;
+	private String getStatementListForArticle(String article) {
+		LegalReference lr = LegalReference.createFromRefId(article, xpath);
+		if (lr == null)
+			return null;
+		String refersTo = lr.getRefersTo();
+		Association association = Association.createFromArticle(refersTo, xpath);
+		return association.getTarget().substring(1);
 	}
 
 }
