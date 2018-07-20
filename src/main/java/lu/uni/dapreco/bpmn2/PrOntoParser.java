@@ -1,4 +1,4 @@
-package lu.uni.dapreco.bpmn2.owl;
+package lu.uni.dapreco.bpmn2;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -7,6 +7,8 @@ import java.util.Set;
 import java.util.Vector;
 
 import org.semanticweb.owlapi.model.OWLClass;
+
+import lu.uni.dapreco.bpmn2.owl.Ontology;
 
 public class PrOntoParser {
 

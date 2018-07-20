@@ -1,9 +1,9 @@
 package lu.uni.dapreco.bpmn2;
 
+import java.util.Map;
 import java.util.Vector;
 
-import lu.uni.dapreco.bpmn2.LRMLParser.RuleType;
-import lu.uni.dapreco.bpmn2.owl.PrOntoParser;
+import org.w3c.dom.Document;
 
 public class DKBValidation {
 
@@ -32,6 +32,11 @@ public class DKBValidation {
 	private static final String[] constitutive = { "art_5__para_1", "art_6__para_1",
 			"art_6__para_1__content__list_1__point_a", "art_6__para_1__content__list_1__point_b" };
 
+	public static final Map<String[], LRMLParser.RuleType> map = Map.ofEntries(
+			Map.entry(new String[0], LRMLParser.RuleType.ALL), Map.entry(permissions, LRMLParser.RuleType.PERMISSIONS),
+			Map.entry(obligations, LRMLParser.RuleType.OBLIGATIONS),
+			Map.entry(constitutive, LRMLParser.RuleType.CONSTITUTIVE));
+
 	private static LRMLParser lParser;
 	private static AKNParser aParser;
 	private static PrOntoParser oParser;
@@ -44,10 +49,11 @@ public class DKBValidation {
 		gParser = new GraphParser(graphURI);
 	}
 
-	private String[] parseMissingFromSet(String[] workingSet, LRMLParser.RuleType type) {
+	private String[] parseMissingFromSet(String[] workingSet) {
 		Vector<String> missVec = new Vector<String>();
 		for (String rule : workingSet) {
-			String[] predicates = lParser.findPredicatesInArticle(aknPrefix + ":" + rule, ontoPrefix, type);
+			String[] predicates = lParser.findPredicatesInArticle(aknPrefix + ":" + rule, ontoPrefix,
+					map.get(workingSet));
 			String[] ruleMissing = oParser.getMissingPredicates(predicates);
 			for (String m : ruleMissing)
 				if (!missVec.contains(m))
@@ -57,22 +63,23 @@ public class DKBValidation {
 		return missVec.toArray(missing);
 	}
 
-	private void printMissingFromSet(String[] workingSet, RuleType ruleType) {
-		String[] missing = parseMissingFromSet(workingSet, ruleType);
+	private void printMissingFromSet(String[] workingSet) {
+		String[] missing = parseMissingFromSet(workingSet);
 		if (missing.length > 0) {
-			System.out.println(ruleType);
+			System.out.println(map.get(workingSet));
 			for (String c : missing)
 				System.out.println(c);
 			System.out.println();
 		}
 	}
 
-	private String[] parsePredicatesInSet(String[] workingSet, LRMLParser.RuleType type) {
+	private String[] parsePredicatesInSet(String[] workingSet) {
 		Vector<String> predVec = new Vector<String>();
 		for (String baseRule : workingSet) {
 			String[] extended = aParser.getExtendedRuleSet(baseRule);
 			for (String rule : extended) {
-				String[] rulePredicates = lParser.findPredicatesInArticle(aknPrefix + ":" + rule, ontoPrefix, type);
+				String[] rulePredicates = lParser.findPredicatesInArticle(aknPrefix + ":" + rule, ontoPrefix,
+						map.get(workingSet));
 				for (String p : rulePredicates)
 					if (!predVec.contains(p))
 						predVec.add(p);
@@ -82,24 +89,40 @@ public class DKBValidation {
 		return predVec.toArray(predicates);
 	}
 
-	private void printPredicatesInSet(String[] workingSet, RuleType ruleType) {
-		String[] missing = parsePredicatesInSet(workingSet, ruleType);
-		if (missing.length > 0) {
-			System.out.println(ruleType);
-			for (String c : missing)
-				System.out.println(c);
+	private void printPredicatesInSet(String[] workingSet) {
+		String[] predicates = parsePredicatesInSet(workingSet);
+		if (predicates.length > 0) {
+			System.out.println(map.get(workingSet));
+			for (String c : predicates) {
+				System.out.print(c);
+				int occurrences = gParser.findElements(c).getLength();
+				if (occurrences == 0)
+					System.out.print(" MISSING");
+				if (occurrences > 1)
+					System.out.print(" DUPLICATE (" + occurrences + ")");
+				System.out.println();
+			}
 			System.out.println();
 		}
 	}
 
+	private void createReducedGraph(String[] workingSet) {
+		String[] predicates = parsePredicatesInSet(workingSet);
+		Document doc = gParser.removeUnusedElements(predicates);
+		gParser.writeReducedDocument(doc, map.get(workingSet));
+	}
+
 	public static void main(String[] args) {
 		DKBValidation dkb = new DKBValidation();
-		// dkb.printMissingFromSet(permissions, LRMLParser.RuleType.PERMISSIONS);
-		// dkb.printMissingFromSet(obligations, LRMLParser.RuleType.OBLIGATIONS);
-		// dkb.printMissingFromSet(constitutive, LRMLParser.RuleType.CONSTITUTIVE);
-		dkb.printPredicatesInSet(permissions, LRMLParser.RuleType.PERMISSIONS);
-		dkb.printPredicatesInSet(obligations, LRMLParser.RuleType.OBLIGATIONS);
-		dkb.printPredicatesInSet(constitutive, LRMLParser.RuleType.CONSTITUTIVE);
+		// dkb.printMissingFromSet(permissions);
+		// dkb.printMissingFromSet(obligations);
+		// dkb.printMissingFromSet(constitutive);
+		dkb.printPredicatesInSet(permissions);
+		dkb.printPredicatesInSet(obligations);
+		dkb.printPredicatesInSet(constitutive);
+		dkb.createReducedGraph(permissions);
+		dkb.createReducedGraph(obligations);
+		dkb.createReducedGraph(constitutive);
 	}
 
 }
