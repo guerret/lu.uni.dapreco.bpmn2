@@ -1,9 +1,20 @@
 package lu.uni.dapreco.bpmn2;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
 import org.w3c.dom.Document;
+
+import lu.uni.dapreco.bpmn2.akn.AKNParser;
+import lu.uni.dapreco.bpmn2.lrml.ContextMap;
+import lu.uni.dapreco.bpmn2.lrml.LRMLParser;
+import lu.uni.dapreco.bpmn2.lrml.LRMLParser.RuleType;
 
 public class DKBValidation {
 
@@ -23,39 +34,69 @@ public class DKBValidation {
 			+ resDir + "/" + graphName;
 	// private static final String aknLocal = resDir + "/" + aknName;
 
-	private static String aknPrefix = "GDPR";
+	public static String aknPrefix = "GDPR";
 	private static String ontoPrefix = "prOnto";
+	private static String daprecoPrefix = "dapreco";
 
-	private static final String[] permissions = { "art_45__para_1", "art_77__para_1", "art_11__para_1",
-			"art_11__para_2" };
-	private static final String[] obligations = { "art_7__para_1", "art_9__para_1", "art_82__para_1" };
-	private static final String[] constitutive = { "art_5__para_1", "art_6__para_1",
-			"art_6__para_1__content__list_1__point_a", "art_6__para_1__content__list_1__point_b" };
+	private static String[] permissions = {}, obligations = {}, constitutive = {};
 
-	public static final Map<String[], LRMLParser.RuleType> map = Map.ofEntries(
-			Map.entry(new String[0], LRMLParser.RuleType.ALL), Map.entry(permissions, LRMLParser.RuleType.PERMISSIONS),
-			Map.entry(obligations, LRMLParser.RuleType.OBLIGATIONS),
-			Map.entry(constitutive, LRMLParser.RuleType.CONSTITUTIVE));
+	public static Map<LRMLParser.RuleType, String[]> typeMap;
 
-	private static LRMLParser lParser;
-	private static AKNParser aParser;
-	private static PrOntoParser oParser;
-	private static GraphParser gParser;
+	private LRMLParser lParser;
+	private AKNParser aParser;
+	// private PrOntoParser oParser;
+	private GraphParser gParser;
 
-	private DKBValidation() {
+	public DKBValidation() {
 		lParser = new LRMLParser(lrmlURI);
 		aParser = new AKNParser(aknURI);
-		oParser = new PrOntoParser(true);
+		// oParser = new PrOntoParser(true);
 		gParser = new GraphParser(graphURI);
+		permissions = readExamples(RuleType.PERMISSIONS);
+		obligations = readExamples(RuleType.OBLIGATIONS);
+		constitutive = readExamples(RuleType.CONSTITUTIVE);
+		typeMap = Map.ofEntries(Map.entry(LRMLParser.RuleType.PERMISSIONS, permissions),
+				Map.entry(LRMLParser.RuleType.OBLIGATIONS, obligations),
+				Map.entry(LRMLParser.RuleType.CONSTITUTIVE, constitutive),
+				Map.entry(LRMLParser.RuleType.ALL, new String[0]));
 	}
 
-	private String[] parseMissingFromSet(String[] workingSet) {
+	public String[] readExamples(RuleType type) {
+		List<String> lines = new ArrayList<String>();
+		String filename = "examples_" + type.toString().toLowerCase() + ".txt";
+		try {
+			BufferedReader abc = new BufferedReader(new FileReader("resources/" + filename));
+
+			String line;
+			while ((line = abc.readLine()) != null) {
+				lines.add(line);
+			}
+			abc.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		String[] data = lines.toArray(new String[] {});
+		return data;
+	}
+
+	public void createExampleFile(RuleType type) {
+		LRMLParser copy = lParser.copy();
+		String[] workingSet = typeMap.get(type);
+		String[] extended = aParser.getExtendedRuleSet(workingSet);
+		copy.removeAllLegalReferencesExceptForRules(extended, aknPrefix);
+		copy.write("rioKB_GDPR_examples_" + type + ".xml");
+	}
+
+	public String[] parseMissingFromSet(RuleType type) {
 		Vector<String> missVec = new Vector<String>();
+		String[] workingSet = typeMap.get(type);
 		for (String rule : workingSet) {
-			String[] predicates = lParser.findPredicatesInArticle(aknPrefix + ":" + rule, ontoPrefix,
-					map.get(workingSet));
-			String[] ruleMissing = oParser.getMissingPredicates(predicates);
-			for (String m : ruleMissing)
+			// In the new Dapreco KB, the non-aligned predicates have a "dapreco:" prefix
+			String[] daprecoPredicates = lParser.findPredicatesInArticle(aknPrefix + ":" + rule, daprecoPrefix, type);
+			// String[] ruleMissing = oParser.getMissingPredicates(predicates);
+			for (String m : daprecoPredicates)
 				if (!missVec.contains(m))
 					missVec.add(m);
 		}
@@ -63,23 +104,13 @@ public class DKBValidation {
 		return missVec.toArray(missing);
 	}
 
-	private void printMissingFromSet(String[] workingSet) {
-		String[] missing = parseMissingFromSet(workingSet);
-		if (missing.length > 0) {
-			System.out.println(map.get(workingSet));
-			for (String c : missing)
-				System.out.println(c);
-			System.out.println();
-		}
-	}
-
-	private String[] parsePredicatesInSet(String[] workingSet) {
+	public String[] parsePredicatesInSet(RuleType type) {
+		String[] workingSet = typeMap.get(type);
 		Vector<String> predVec = new Vector<String>();
 		for (String baseRule : workingSet) {
 			String[] extended = aParser.getExtendedRuleSet(baseRule);
 			for (String rule : extended) {
-				String[] rulePredicates = lParser.findPredicatesInArticle(aknPrefix + ":" + rule, ontoPrefix,
-						map.get(workingSet));
+				String[] rulePredicates = lParser.findPredicatesInArticle(aknPrefix + ":" + rule, ontoPrefix, type);
 				for (String p : rulePredicates)
 					if (!predVec.contains(p))
 						predVec.add(p);
@@ -89,40 +120,22 @@ public class DKBValidation {
 		return predVec.toArray(predicates);
 	}
 
-	private void printPredicatesInSet(String[] workingSet) {
-		String[] predicates = parsePredicatesInSet(workingSet);
-		if (predicates.length > 0) {
-			System.out.println(map.get(workingSet));
-			for (String c : predicates) {
-				System.out.print(c);
-				int occurrences = gParser.findElements(c).getLength();
-				if (occurrences == 0)
-					System.out.print(" MISSING");
-				if (occurrences > 1)
-					System.out.print(" DUPLICATE (" + occurrences + ")");
-				System.out.println();
-			}
-			System.out.println();
-		}
+	public int countOccurrencesInGraph(String predicate) {
+		return gParser.findElements(predicate).getLength();
 	}
 
-	private void createReducedGraph(String[] workingSet) {
-		String[] predicates = parsePredicatesInSet(workingSet);
+	public void createReducedGraph(RuleType type) {
+		String[] predicates = parsePredicatesInSet(type);
 		Document doc = gParser.removeUnusedElements(predicates);
-		gParser.writeReducedDocument(doc, map.get(workingSet));
+		gParser.writeReducedDocument(doc, type);
 	}
 
-	public static void main(String[] args) {
-		DKBValidation dkb = new DKBValidation();
-		// dkb.printMissingFromSet(permissions);
-		// dkb.printMissingFromSet(obligations);
-		// dkb.printMissingFromSet(constitutive);
-		dkb.printPredicatesInSet(permissions);
-		dkb.printPredicatesInSet(obligations);
-		dkb.printPredicatesInSet(constitutive);
-		dkb.createReducedGraph(permissions);
-		dkb.createReducedGraph(obligations);
-		dkb.createReducedGraph(constitutive);
+	public void boh(RuleType type) {
+		String[] workingSet = typeMap.get(type);
+		for (String baseRule : workingSet) {
+			String[] extended = aParser.getExtendedRuleSet(baseRule);
+			lParser.translateRoba(extended, aknPrefix);
+		}
 	}
 
 }

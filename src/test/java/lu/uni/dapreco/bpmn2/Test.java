@@ -1,5 +1,8 @@
 package lu.uni.dapreco.bpmn2;
 
+import lu.uni.dapreco.bpmn2.akn.AKNParser;
+import lu.uni.dapreco.bpmn2.lrml.LRMLParser;
+
 public class Test {
 
 	private final static String resDir = "resources";

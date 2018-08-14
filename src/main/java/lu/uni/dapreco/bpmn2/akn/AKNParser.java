@@ -1,7 +1,9 @@
-package lu.uni.dapreco.bpmn2;
+package lu.uni.dapreco.bpmn2.akn;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Vector;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -13,8 +15,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import lu.uni.dapreco.bpmn2.akn.Paragraph;
-import lu.uni.dapreco.bpmn2.akn.Point;
+import lu.uni.dapreco.bpmn2.XPathParser;
 
 public class AKNParser {
 
@@ -64,6 +65,15 @@ public class AKNParser {
 		for (int i = 0; i < nl.getLength(); i++)
 			list[i + 1] = nl.item(i).getNodeValue();
 		return list;
+	}
+
+	public String[] getExtendedRuleSet(String[] workingSet) {
+		Vector<String> v = new Vector<String>();
+		for (String eId : workingSet) {
+			String[] list = getExtendedRuleSet(eId);
+			v.addAll(Arrays.asList(list));
+		}
+		return v.toArray(new String[v.size()]);
 	}
 
 }

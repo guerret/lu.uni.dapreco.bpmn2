@@ -27,12 +27,12 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import lu.uni.dapreco.bpmn2.LRMLParser.RuleType;
+import lu.uni.dapreco.bpmn2.lrml.LRMLParser.RuleType;
 
 public class GraphParser {
 
 	private DocumentBuilder builder;
-	private static Document doc;
+	private Document doc;
 	private XPathParser xpath;
 
 	public static String graphmlPrefix = "ns";
