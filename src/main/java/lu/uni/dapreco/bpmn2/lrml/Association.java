@@ -12,7 +12,7 @@ public class Association extends BaseLRMLElement {
 	private String target;
 
 	private Association(Node node) {
-		super(node);
+		super(node, null);
 		Node child = root.getFirstChild();
 		while (child != null) {
 			if (child.getNodeName().equals("lrml:appliesSource"))

@@ -12,7 +12,6 @@ import java.util.Vector;
 import org.w3c.dom.Document;
 
 import lu.uni.dapreco.bpmn2.akn.AKNParser;
-import lu.uni.dapreco.bpmn2.lrml.ContextMap;
 import lu.uni.dapreco.bpmn2.lrml.LRMLParser;
 import lu.uni.dapreco.bpmn2.lrml.LRMLParser.RuleType;
 
@@ -27,7 +26,7 @@ public class DKBValidation {
 	private final static String aknName = "akn-act-gdpr-full.xml";
 	private static final String aknURI = "https://raw.githubusercontent.com/guerret/lu.uni.dapreco.bpmn2/master/"
 			+ resDir + "/" + aknName;
-	// private static final String aknLocal = resDir + "/" + aknName;
+	private static final String aknLocal = resDir + "/" + aknName;
 
 	private final static String graphName = "pronto-v8.graphml";
 	private static final String graphURI = "https://raw.githubusercontent.com/guerret/lu.uni.dapreco.bpmn2/master/"
@@ -49,7 +48,7 @@ public class DKBValidation {
 
 	public DKBValidation() {
 		lParser = new LRMLParser(lrmlURI);
-		aParser = new AKNParser(aknURI);
+		aParser = new AKNParser(aknLocal);
 		// oParser = new PrOntoParser(true);
 		gParser = new GraphParser(graphURI);
 		permissions = readExamples(RuleType.PERMISSIONS);
@@ -130,12 +129,18 @@ public class DKBValidation {
 		gParser.writeReducedDocument(doc, type);
 	}
 
-	public void boh(RuleType type) {
+	public String translate(RuleType type) {
+		String ret = "";
 		String[] workingSet = typeMap.get(type);
 		for (String baseRule : workingSet) {
 			String[] extended = aParser.getExtendedRuleSet(baseRule);
-			lParser.translateRoba(extended, aknPrefix);
+			ret += lParser.translate(extended, aknPrefix);
 		}
+		return ret;
+	}
+
+	public boolean analyze() {
+		return lParser.analyze();
 	}
 
 }

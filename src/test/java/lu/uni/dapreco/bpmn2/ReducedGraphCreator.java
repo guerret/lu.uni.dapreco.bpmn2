@@ -6,7 +6,7 @@ public class ReducedGraphCreator {
 
 	private DKBValidation dkb;
 
-	ReducedGraphCreator() {
+	private ReducedGraphCreator() {
 		dkb = new DKBValidation();
 	}
 

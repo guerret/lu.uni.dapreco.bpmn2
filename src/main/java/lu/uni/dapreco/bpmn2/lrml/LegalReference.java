@@ -11,7 +11,7 @@ public class LegalReference extends BaseLRMLElement {
 	private String refID;
 
 	private LegalReference(Node node) {
-		super(node);
+		super(node, null);
 		refersTo = root.getAttribute("refersTo");
 		refID = root.getAttribute("refID");
 	}

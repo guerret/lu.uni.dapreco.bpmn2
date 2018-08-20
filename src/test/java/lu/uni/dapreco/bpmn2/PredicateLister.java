@@ -6,7 +6,7 @@ public class PredicateLister {
 
 	private DKBValidation dkb;
 
-	PredicateLister() {
+	private PredicateLister() {
 		dkb = new DKBValidation();
 	}
 

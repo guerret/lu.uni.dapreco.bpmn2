@@ -6,7 +6,7 @@ public class ExampleLRMLFileCreator {
 
 	private DKBValidation dkb;
 
-	ExampleLRMLFileCreator() {
+	private ExampleLRMLFileCreator() {
 		dkb = new DKBValidation();
 	}
 

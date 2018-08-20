@@ -3,12 +3,17 @@ package lu.uni.dapreco.bpmn2.lrml;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import lu.uni.dapreco.bpmn2.XPathParser;
+
 public class BaseLRMLElement {
 
-	Element root;
+	protected Element root;
 
-	public BaseLRMLElement(Node node) {
+	protected XPathParser xpath;
+
+	public BaseLRMLElement(Node node, XPathParser xp) {
 		root = (Element) node;
+		xpath = xp;
 	}
 
 	public Element getRoot() {

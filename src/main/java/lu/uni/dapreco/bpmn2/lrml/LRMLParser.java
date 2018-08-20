@@ -275,14 +275,29 @@ public class LRMLParser {
 		}
 	}
 
-	public void translateRoba(String[] extended, String prefix) {
+	public String translate(String[] extended, String prefix) {
+		String ret = "";
 		for (String rule : extended) {
 			StatementSet statementSet = StatementSet.createFromArticle(prefix + ":" + rule, xpath);
-			if (statementSet != null) {
-				System.out.println(rule);
-				statementSet.translate(xpath);
-			}
+			if (statementSet != null)
+				ret += rule + "\n" + statementSet.translate();
 		}
+		return ret;
+	}
+
+	public boolean analyze() {
+		Node child = doc.getDocumentElement().getFirstChild();
+		while (!child.getNodeName().equals("lrml:Statements"))
+			child = child.getNextSibling();
+		while (child != null && child.getNodeName().equals("lrml:Statements")) {
+			StatementSet statementSet = new StatementSet(child, null);
+			if (statementSet.analyze()) {
+				System.out.println(statementSet.getName());
+				return true;
+			}
+			child = child.getNextSibling();
+		}
+		return false;
 	}
 
 }

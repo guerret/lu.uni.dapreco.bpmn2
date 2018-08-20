@@ -11,7 +11,7 @@ public class InScope extends BaseLRMLElement {
 	private String key;
 
 	private InScope(Node node) {
-		super(node);
+		super(node, null);
 		key = ((Element) node).getAttribute("key");
 	}
 

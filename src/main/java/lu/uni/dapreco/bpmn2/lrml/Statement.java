@@ -11,14 +11,14 @@ public class Statement extends BaseLRMLElement {
 	private RuleType type;
 	private Rule rule;
 
-	public Statement(Node node) {
-		super(node);
+	public Statement(Node node, XPathParser xpath) {
+		super(node, xpath);
 		name = root.getAttribute("key");
 		Node child = root.getFirstChild();
 		while (!child.getNodeName().equals("ruleml:Rule"))
 			child = child.getNextSibling();
 		type = LRMLParser.contextMap.getRuleType(name);
-		rule = new Rule(child, type);
+		rule = new Rule(child, type, xpath);
 	}
 
 	public String getName() {
@@ -33,10 +33,12 @@ public class Statement extends BaseLRMLElement {
 		return type;
 	}
 
-	public void translate(XPathParser xpath) {
-		System.out.println(name + " ==> " + getRuleType());
-		rule.translate();
-		System.out.println();
+	public String translate() {
+		return name + " ==> " + getRuleType() + "\n" + rule.translate() + "\n";
+	}
+
+	public boolean analyze() {
+		return rule.analyze();
 	}
 
 }

@@ -6,7 +6,7 @@ public class MissingPredicatesFinder {
 
 	private DKBValidation dkb;
 
-	MissingPredicatesFinder() {
+	private MissingPredicatesFinder() {
 		dkb = new DKBValidation();
 	}
 
