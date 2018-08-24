@@ -1,5 +1,8 @@
 package lu.uni.dapreco.bpmn2.lrml;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.w3c.dom.Node;
 
 import lu.uni.dapreco.bpmn2.XPathParser;
@@ -40,7 +43,30 @@ public class Rule extends BaseLRMLElement {
 	}
 
 	public String translate() {
-		return lhs.translate() + rhs.translate();
+		List<String> ret = new ArrayList<String>();
+		List<String> l = lhs.translate();
+		for (String s : l) {
+			String g = s.trim();
+			if (!in_array(g, ret))
+				ret.add(s);
+		}
+		// ret.addAll(l);
+		List<String> r = rhs.translate();
+		for (String s : r) {
+			String g = s.trim();
+			if (!in_array(g, ret))
+				ret.add(s);
+		}
+		// ret.addAll(r);
+		ret.add("");
+		return String.join("\n", ret);
+	}
+
+	private boolean in_array(String s, List<String> ret) {
+		for (String t : ret)
+			if (s.equals(t.trim()))
+				return true;
+		return false;
 	}
 
 	public boolean analyze() {

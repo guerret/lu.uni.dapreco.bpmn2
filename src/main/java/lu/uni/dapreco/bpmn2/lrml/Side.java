@@ -1,5 +1,9 @@
 package lu.uni.dapreco.bpmn2.lrml;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -18,7 +22,7 @@ public class Side extends BaseLRMLElement {
 
 	private Node child;
 
-	enum QuantifierType {
+	private enum QuantifierType {
 		EXISTENCE, UNIVERSAL
 	};
 
@@ -49,36 +53,37 @@ public class Side extends BaseLRMLElement {
 		return rule;
 	}
 
-	public String translate() {
-		String ret = position.toString();
+	public List<String> translate() {
+		List<String> ret = new ArrayList<String>();
+		String e = position.toString();
 		if (position == SideType.THEN) {
 			switch (getType()) {
 			case PERMISSIONS:
-				ret += " it is allowed that";
+				e += " " + "it is allowed that";
 				break;
 			case OBLIGATIONS:
-				ret += " it must happen that";
+				e += " " + "it must happen that";
 				break;
 			case CONSTITUTIVE:
-				ret += " it follows that";
+				e += " " + "it follows that";
 				break;
 			default:
-				ret += " UNKNOWN IMPLICATION";
+				e = "UNKNOWN IMPLICATION";
 			}
 		}
-		ret += writeQuantifier() + "\n";
-		ret += translateChild(child, "  ");
+		ret.add(e + ", " + writeQuantifier());
+		ret.addAll(translateChild(child, "  "));
 		return ret;
 	}
 
 	private String writeQuantifier() {
 		if (quantifier == QuantifierType.EXISTENCE)
-			return ", in at least a situation";
+			return "in at least a situation";
 		else
-			return ", in all possible situations";
+			return "in all possible situations";
 	}
 
-	private String translateChild(Node n, String indent) {
+	private List<String> translateChild(Node n, String indent) {
 		switch (n.getNodeName()) {
 		case "ruleml:Exists":
 			return translateExists(n, indent);
@@ -91,35 +96,45 @@ public class Side extends BaseLRMLElement {
 		case "ruleml:Naf":
 			return translateNaf(n, indent);
 		default:
-			return "O questo? " + n.getNodeName() + "\n";
+			List<String> l = new ArrayList<String>();
+			l.add("O questo? " + n.getNodeName());
+			return l;
 		}
 	}
 
-	private String translateExists(Node n, String indent) {
-		checkThatAtomsOrAndsAreExactlyOne(n);
-		String ret = "";
+	private List<String> translateExists(Node n, String indent) {
+		// checkThatAtomsOrAndsAreExactlyOne(n);
+		List<String> ret = new ArrayList<String>();
 		Node child = n.getFirstChild();
 		while (child != null) {
-			if (child.getNodeType() == Node.ELEMENT_NODE)
-				ret += translateChild(child, indent);
+			if (child.getNodeType() == Node.ELEMENT_NODE) {
+				// String translateChild = translateChild(child, indent);
+				// if (translateChild.length() > 0)
+				// ret.add(translateChild);
+				ret.addAll(translateChild(child, indent));
+			}
 			child = child.getNextSibling();
 		}
 		return ret;
 	}
 
-	private String translateVar(Node n, String indent) {
-		return "";
+	private List<String> translateVar(Node n, String indent) {
+		return new ArrayList<String>();
 	}
 
-	private String translateAnd(Node n, String indent) {
-		String ret = ""; // checkThatThereIsOneRexistattime(n);
-		indent += "- ";
+	private List<String> translateAnd(Node n, String indent) {
+		// checkThatThereIsOneRexistattime(n);
 		// the last one is an error
 		String search = "ruleml:Atom[ruleml:Rel[@iri='rioOnto:RexistAtTime']] | ruleml:Atom[ruleml:Rel[@iri='rioOnto:Permitted']] | ruleml:Atom[ruleml:Rel[@iri='rioOnto:Obliged']] | ruleml:Atom";
 		NodeList nl = xpath.parseNode(search, n);
 		// should be the first line
 		// translateAtom(new Atom(nl.item(0), xpath), indent);
-		return ret + translateChild(nl.item(0), indent);
+		List<String> ret = translateChild(nl.item(0), indent);
+		search = "ruleml:Naf";
+		nl = xpath.parseNode(search, n);
+		for (int i = 0; i < nl.getLength(); i++)
+			ret.addAll(translateNaf(nl.item(i), indent));
+		return ret;
 	}
 
 	// private Atom[] getAtoms(Node n) {
@@ -130,19 +145,18 @@ public class Side extends BaseLRMLElement {
 	// return atoms;
 	// }
 
-	private String translateAtom(Atom atom, String indent) {
+	private String translateAtom_old(Atom atom, String indent) {
 		String ret;
 		String[] variables;
 		Atom[] atoms;
 		String iri = atom.getPredicateIRI();
 		switch (iri) {
 		case "rioOnto:RexistAtTime":
-			atoms = findSiblingsByName(atom, atom.getFirstVariable());
+			atoms = atom.findSiblingsByName(atom.getFirstVariable());
 			if (atoms.length > 0) {
 				ret = indent + "At time " + atom.getVariableName(1) + ", the following really exists:\n";
-				indent += "- ";
-				ret += translateAtom(atoms[0], indent);
-			} else { // TODO controllare che ci sia nella parte IF
+				ret += translateAtom_old(atoms[0], indent + "- ");
+			} else {
 				ret = indent + "At time " + atom.getVariableName(1) + ", the above really exists\n";
 			}
 			break;
@@ -157,9 +171,8 @@ public class Side extends BaseLRMLElement {
 		case "rioOnto:Obliged":
 			variables = atom.getReifiedArguments();
 			ret = indent + "At time " + variables[0] + ", " + variables[1] + " is obliged to " + variables[2] + "\n";
-			indent += "- ";
 			for (int i = 1; i < variables.length; i++)
-				ret += parseSiblings(atom, indent, variables[i]);
+				ret += parseSiblings(atom, indent + "- ", variables[i]);
 			break;
 		case "rioOnto:and":
 			variables = atom.getReifiedArguments();
@@ -194,11 +207,48 @@ public class Side extends BaseLRMLElement {
 			break;
 		default:
 			ret = atom.translate(indent);
-			indent += "- ";
 			variables = atom.getArgumentsToTranslate();
-			for (String v : variables)
-				ret += parseSiblings(atom, indent, v);
+			for (String v : variables) {
+				ret += parseSiblings(atom, indent + "- ", v);
+			}
 		}
+		return ret;
+	}
+
+	private List<String> translateAtom(Atom atom, String indent) {
+		List<String> ret = new ArrayList<String>();
+		String[] variables = atom.isReified() ? atom.getReifiedArguments() : atom.getNonReifiedArguments();
+		boolean ignoreLHS = false;
+		switch (atom.getPredicateIRI()) {
+		case "rioOnto:RexistAtTime":
+			// only first argument, the second is the time
+			variables = Arrays.copyOfRange(variables, 0, 1);
+			break;
+		case "rioOnto:Permitted":
+		case "rioOnto:Obliged":
+			// first argument is reification (although not reified), second is time
+			variables = Arrays.copyOfRange(variables, 2, variables.length);
+			break;
+		case "rioOnto:and":
+		case "rioOnto:or":
+			// first argument is reification (although not reified), the rest are useful
+			variables = Arrays.copyOfRange(variables, 1, variables.length);
+			break;
+		case "rioOnto:not":
+			// first argument is reification (although not reified), the second is useful
+			variables = Arrays.copyOfRange(variables, 1, 2);
+			break;
+		case "rioOnto:cause":
+		case "rioOnto:imply":
+			break;
+		default:
+			variables = atom.getArgumentsToTranslate();
+		}
+		Atom[] definitionAtoms = atom.getDefinitionAtoms(variables);
+		ret.add(indent + atom.translateButBetter());
+		for (Atom d : definitionAtoms)
+			if (d != null && d.getArgumentsToTranslateButBetter().length > 1)
+				ret.addAll(translateChild(d.root, indent + "  "));
 		return ret;
 	}
 
@@ -207,10 +257,10 @@ public class Side extends BaseLRMLElement {
 		if (v.startsWith("Ind:")) {
 		} else if (v.startsWith("Expr")) {
 		} else {
-			Atom[] atoms = findSiblingsByName(atom, v);
+			Atom[] atoms = atom.findSiblingsByName(v);
 			if (atoms.length > 0)
 				for (Atom a : atoms)
-					ret += translateAtom(a, indent);
+					ret += translateAtom_old(a, indent);
 			else {
 				Side lhs = rule.getLHS();
 				if (this == lhs)
@@ -230,25 +280,17 @@ public class Side extends BaseLRMLElement {
 		return ret;
 	}
 
-	private Atom[] findSiblingsByName(Atom a, String name) {
-		String search = "preceding-sibling::ruleml:Atom[ruleml:Var[1]/@key='" + name
-				+ "'] | preceding-sibling::ruleml:Atom[ruleml:Var[1]/@keyref='" + name
-				+ "'] | following-sibling::ruleml:Atom[ruleml:Var[1]/@key='" + name
-				+ "'] | following-sibling::ruleml:Atom[ruleml:Var[1]/@keyref='" + name + "']";
-		NodeList nl = xpath.parseNode(search, a.root);
-		Atom[] atoms = new Atom[nl.getLength()];
-		for (int i = 0; i < atoms.length; i++)
-			atoms[i] = new Atom(nl.item(i), xpath);
-		return atoms;
-	}
-
-	private String translateNaf(Node n, String indent) {
-		String ret = checkThatAtomsOrAndsAreExactlyOne(n);
-		ret += indent + "the following has not been found:\n";
+	private List<String> translateNaf(Node n, String indent) {
+		// checkThatAtomsOrAndsAreExactlyOne(n);
+		List<String> l = new ArrayList<String>();
+		l.add(indent + "The following has not been found:");
+		// String ret = indent + "the following has not been found:\n";
 		Node child = n.getFirstChild();
 		while (child.getNodeType() != Node.ELEMENT_NODE)
 			child = child.getNextSibling();
-		return ret + translateChild(child, indent);
+		l.addAll(translateChild(child, indent + "  "));
+		// return ret + translateChild(child, indent);
+		return l;
 	}
 
 	private String checkThatThereIsOneRexistattime(Node n) {

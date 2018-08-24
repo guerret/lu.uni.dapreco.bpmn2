@@ -34,7 +34,7 @@ public class Statement extends BaseLRMLElement {
 	}
 
 	public String translate() {
-		return name + " ==> " + getRuleType() + "\n" + rule.translate() + "\n";
+		return /* name + " ==> " + getRuleType() + "\n" + */ rule.translate() + "\n";
 	}
 
 	public boolean analyze() {
