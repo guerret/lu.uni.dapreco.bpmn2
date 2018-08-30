@@ -107,7 +107,8 @@ public class RuleMLBlock extends BaseLRMLElement {
 
 	private List<String> translateExists() {
 		List<String> ret = new ArrayList<String>();
-		for (RuleMLBlock child : children)
+		List<RuleMLBlock> elems = getRealChildren();
+		for (RuleMLBlock child : elems)
 			ret.addAll(child.translate());
 		return ret;
 	}
@@ -115,12 +116,13 @@ public class RuleMLBlock extends BaseLRMLElement {
 	private List<String> translateAnd() {
 		List<String> ret = new ArrayList<String>();
 		ret.add("<ul>");
-		for (RuleMLBlock child : children) {
+		List<RuleMLBlock> elems = getRealChildren();
+		for (RuleMLBlock child : elems) {
 			if (child.type == RuleMLType.ATOM) {
 				Atom atom = (Atom) child;
 				String currentText = ret.toString();
-				if (!currentText.contains(child.toString()) && atom.getArguments().size() > 1
-						&& !currentText.contains(atom.getLocalPredicate())) {
+				if (!currentText.contains(child.toString()) && !currentText.contains(atom.getLocalPredicate())
+						&& atom.mustTranslate()) {
 					ret.add("<li>");
 					ret.addAll(child.translate());
 					ret.add("</li>");

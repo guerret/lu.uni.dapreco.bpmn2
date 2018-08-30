@@ -30,7 +30,7 @@ public class Variable extends RuleMLBlock {
 	}
 
 	public String toString() {
-		return "<strong>" + getPredicate() + "</strong> (" + name + ")";
+		return getPredicate() + " (" + name + ")";
 	}
 
 	public String getPredicate() {
@@ -38,10 +38,14 @@ public class Variable extends RuleMLBlock {
 			List<Atom> atoms = getDefinitionAtoms(owner);
 			if (atoms.isEmpty() && owner.getPosition() == SideType.THEN)
 				atoms = getDefinitionAtoms(owner.getOwnerRule().getLHS());
-			if (!atoms.isEmpty())
-				predicate = atoms.get(0).getLocalPredicate();
-			else
-				predicate = "Thing";
+			if (!atoms.isEmpty()) {
+				Atom atom = atoms.get(0);
+				if (atom.getClass() == RioOntoAtom.class)
+					predicate = "The <strong>" + atom.getLocalPredicate() + "</strong> situation denoted by";
+				else
+					predicate = "<strong>" + atom.getLocalPredicate() + "</strong>";
+			} else
+				predicate = "<strong>Thing</strong>";
 		}
 		return predicate;
 	}
@@ -49,7 +53,7 @@ public class Variable extends RuleMLBlock {
 	public List<Atom> getDefinitionAtoms(Side side) {
 		List<Atom> ret = new ArrayList<Atom>();
 		for (Atom a : side.getVariableUses(name))
-			if (a != parent && a.children.size() > 0 && a.children.get(0).type == RuleMLType.VAR
+			if (a != parent && !a.isExclusion() && a.children.size() > 0 && a.children.get(0).type == RuleMLType.VAR
 					&& a.children.get(0).getName().equals(name))
 				ret.add(a);
 		return ret;

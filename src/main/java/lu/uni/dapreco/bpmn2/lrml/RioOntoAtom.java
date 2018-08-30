@@ -68,13 +68,14 @@ public class RioOntoAtom extends Atom {
 		case "cause":
 		case "imply":
 		case "partOf":
+			translation += "<br />";
 			break;
 		default:
 			translation += "<br />";
 		}
 		ret.add(translation);
-		List<Atom> newDefinitionAtoms = getNewDefinitionAtoms(arguments);
-		for (Atom d : newDefinitionAtoms)
+		List<Atom> definitionAtoms = getNewDefinitionAtoms(arguments);
+		for (Atom d : definitionAtoms)
 			if (d.getArguments().size() > 1) {
 				if (!list.isEmpty())
 					ret.add("<li>");
@@ -125,7 +126,7 @@ public class RioOntoAtom extends Atom {
 		default:
 			if (pred.startsWith("exception"))
 				return "<span>Exception (" + pred + ")</span>";
-			return "UNKNOWN RIOONTO PREDICATE";
+			return "UNKNOWN RIOONTO PREDICATE: " + predicateIRI;
 		}
 	}
 

@@ -61,6 +61,8 @@ public class Atom extends RuleMLBlock {
 			String prefix = pred.substring(0, pred.indexOf(":"));
 			if (prefix.equals("rioOnto"))
 				return new RioOntoAtom(node, pred, s, xpath);
+			if (prefix.equals("pred"))
+				return new PredAtom(node, pred, s, xpath);
 			return new Atom(node, pred, s, xpath);
 		}
 		return null;
@@ -188,8 +190,8 @@ public class Atom extends RuleMLBlock {
 		List<RuleMLBlock> arguments = getNewArgumentsToTranslate();
 		String translation = toString() + "<br />";
 		ret.add(translation);
-		List<Atom> newDefinitionAtoms = getNewDefinitionAtoms(arguments);
-		for (Atom d : newDefinitionAtoms)
+		List<Atom> definitionAtoms = getNewDefinitionAtoms(arguments);
+		for (Atom d : definitionAtoms)
 			if (d.getArguments().size() > 1)
 				ret.addAll(d.translate());
 		if (translation.contains("<ol>"))
@@ -573,6 +575,30 @@ public class Atom extends RuleMLBlock {
 				return false;
 		}
 		return true;
+	}
+
+	public boolean mustTranslate() {
+		if (getArguments().size() > 1)
+			return true;
+		switch (getLocalPredicate()) {
+		case "HasBeenDamaged":
+		case "Risk":
+		case "accurate":
+		case "lawfulness":
+		case "fairness":
+			return true;
+		default:
+			return false;
+		}
+	}
+
+	public boolean isExclusion() {
+		switch (getLocalPredicate()) {
+		case "isBasedOn":
+			return true;
+		default:
+			return false;
+		}
 	}
 
 }
