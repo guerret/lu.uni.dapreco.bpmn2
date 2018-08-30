@@ -1,6 +1,6 @@
 package lu.uni.dapreco.bpmn2.lrml;
 
-import org.w3c.dom.Node;
+import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import lu.uni.dapreco.bpmn2.XPathParser;
@@ -10,7 +10,7 @@ public class LegalReference extends BaseLRMLElement {
 	private String refersTo;
 	private String refID;
 
-	private LegalReference(Node node) {
+	private LegalReference(Element node) {
 		super(node, null);
 		refersTo = root.getAttribute("refersTo");
 		refID = root.getAttribute("refID");
@@ -29,7 +29,7 @@ public class LegalReference extends BaseLRMLElement {
 		NodeList nl = xpath.parse(search);
 		if (nl.getLength() == 0)
 			return null;
-		return new LegalReference(nl.item(0));
+		return new LegalReference((Element) nl.item(0));
 	}
 
 	public static LegalReference createFromRefId(String refID, XPathParser xpath) {
@@ -37,7 +37,7 @@ public class LegalReference extends BaseLRMLElement {
 		NodeList nl = xpath.parse(search);
 		if (nl.getLength() == 0)
 			return null;
-		return new LegalReference(nl.item(0));
+		return new LegalReference((Element) nl.item(0));
 	}
 
 }

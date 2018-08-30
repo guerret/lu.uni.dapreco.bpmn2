@@ -129,14 +129,17 @@ public class DKBValidation {
 		gParser.writeReducedDocument(doc, type);
 	}
 
-	public String translate(RuleType type) {
+	public TranslatorOutput translate(RuleType type) {
 		String ret = "";
+		List<String> exceptions = new ArrayList<String>();
 		String[] workingSet = typeMap.get(type);
 		for (String baseRule : workingSet) {
 			String[] extended = aParser.getExtendedRuleSet(baseRule);
 			ret += lParser.translate(extended, aknPrefix);
+			exceptions = lParser.getExceptions(extended, aknPrefix, exceptions);
 		}
-		return ret;
+		TranslatorOutput to = new TranslatorOutput(ret, lParser.translateExceptions(exceptions));
+		return to;
 	}
 
 	public boolean analyze() {

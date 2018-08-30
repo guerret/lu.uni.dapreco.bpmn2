@@ -11,8 +11,8 @@ public class BaseLRMLElement {
 
 	protected XPathParser xpath;
 
-	public BaseLRMLElement(Node node, XPathParser xp) {
-		root = (Element) node;
+	public BaseLRMLElement(Element node, XPathParser xp) {
+		root = node;
 		xpath = xp;
 	}
 

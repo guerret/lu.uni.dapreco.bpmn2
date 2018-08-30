@@ -11,7 +11,7 @@ public class Association extends BaseLRMLElement {
 	private String source;
 	private String target;
 
-	private Association(Node node) {
+	private Association(Element node) {
 		super(node, null);
 		Node child = root.getFirstChild();
 		while (child != null) {
@@ -37,7 +37,7 @@ public class Association extends BaseLRMLElement {
 		NodeList nl = xpath.parse(search);
 		if (nl.getLength() == 0)
 			return null;
-		return new Association(nl.item(0));
+		return new Association((Element) nl.item(0));
 	}
 
 	public static Association createFromArticle(String article, XPathParser xpath) {
@@ -47,7 +47,7 @@ public class Association extends BaseLRMLElement {
 		NodeList nl = xpath.parse(search);
 		if (nl.getLength() == 0)
 			return null;
-		return new Association(nl.item(0));
+		return new Association((Element) nl.item(0));
 	}
 
 }

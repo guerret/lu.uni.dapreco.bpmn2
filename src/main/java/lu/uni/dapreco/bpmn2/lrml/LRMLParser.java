@@ -2,6 +2,7 @@ package lu.uni.dapreco.bpmn2.lrml;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
@@ -280,9 +281,18 @@ public class LRMLParser {
 		for (String rule : extended) {
 			StatementSet statementSet = StatementSet.createFromArticle(prefix + ":" + rule, xpath);
 			if (statementSet != null)
-				ret += rule + "\n" + statementSet.translate();
+				ret += "<h2>" + rule + "</h2>\n" + statementSet.translate();
 		}
 		return ret;
+	}
+
+	public List<String> getExceptions(String[] extended, String prefix, List<String> exceptions) {
+		for (String rule : extended) {
+			StatementSet statementSet = StatementSet.createFromArticle(prefix + ":" + rule, xpath);
+			if (statementSet != null)
+				exceptions = statementSet.getExceptions(exceptions);
+		}
+		return exceptions;
 	}
 
 	public boolean analyze() {
@@ -290,7 +300,7 @@ public class LRMLParser {
 		while (!child.getNodeName().equals("lrml:Statements"))
 			child = child.getNextSibling();
 		while (child != null && child.getNodeName().equals("lrml:Statements")) {
-			StatementSet statementSet = new StatementSet(child, null);
+			StatementSet statementSet = new StatementSet((Element) child, null);
 			if (statementSet.analyze()) {
 				System.out.println(statementSet.getName());
 				return true;
@@ -298,6 +308,26 @@ public class LRMLParser {
 			child = child.getNextSibling();
 		}
 		return false;
+	}
+
+	public String translateExceptions(List<String> exceptions) {
+		String ret = "";
+		for (String e : exceptions) {
+			String search = "/lrml:LegalRuleML/lrml:Statements/lrml:ConstitutiveStatement[ruleml:Rule/ruleml:then/descendant::ruleml:Atom/ruleml:Rel[@iri='"
+					+ e + "']]";
+			NodeList nl = xpath.parse(search);
+			if (nl.getLength() == 0)
+				ret += "PROBLEM: no definition found for exception " + e + "\n";
+			else if (nl.getLength() == 1)
+				ret += nl.getLength() + " definition found for exception " + e + "\n";
+			else
+				ret += nl.getLength() + " definitions found for exception " + e + "\n";
+			for (int i = 0; i < nl.getLength(); i++) {
+				Statement s = new Statement((Element) nl.item(i), xpath, null);
+				ret += s.translate();
+			}
+		}
+		return ret;
 	}
 
 }

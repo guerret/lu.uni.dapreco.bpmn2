@@ -1,9 +1,8 @@
 package lu.uni.dapreco.bpmn2.lrml;
 
-import java.util.Vector;
+import java.util.List;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import lu.uni.dapreco.bpmn2.XPathParser;
@@ -11,10 +10,16 @@ import lu.uni.dapreco.bpmn2.XPathParser;
 public class StatementSet extends BaseLRMLElement {
 
 	private String name;
+	private Statement[] statements;
 
-	public StatementSet(Node node, XPathParser xpath) {
+	public StatementSet(Element node, XPathParser xpath) {
 		super(node, xpath);
 		name = root.getAttribute("key");
+		String search = "/lrml:LegalRuleML/lrml:Statements[@key='" + this.name + "']/lrml:ConstitutiveStatement";
+		NodeList nl = xpath.parse(search);
+		statements = new Statement[nl.getLength()];
+		for (int i = 0; i < statements.length; i++)
+			statements[i] = new Statement((Element) nl.item(i), xpath, this);
 	}
 
 	public String getName() {
@@ -22,11 +27,6 @@ public class StatementSet extends BaseLRMLElement {
 	}
 
 	public Statement[] getStatements() {
-		String search = "/lrml:LegalRuleML/lrml:Statements[@key='" + this.name + "']/lrml:ConstitutiveStatement";
-		NodeList nl = xpath.parse(search);
-		Statement[] statements = new Statement[nl.getLength()];
-		for (int i = 0; i < statements.length; i++)
-			statements[i] = new Statement(nl.item(i), xpath);
 		return statements;
 	}
 
@@ -35,7 +35,7 @@ public class StatementSet extends BaseLRMLElement {
 		NodeList nl = xpath.parse(search);
 		if (nl.getLength() == 0)
 			return null;
-		return new StatementSet(nl.item(0), xpath);
+		return new StatementSet((Element) nl.item(0), xpath);
 	}
 
 	public static StatementSet createFromArticle(String article, XPathParser xpath) {
@@ -72,6 +72,12 @@ public class StatementSet extends BaseLRMLElement {
 			if (s.analyze())
 				return true;
 		return false;
+	}
+
+	public List<String> getExceptions(List<String> exceptions) {
+		for (Statement s : getStatements())
+			exceptions = s.getExceptions(exceptions);
+		return exceptions;
 	}
 
 }
