@@ -18,7 +18,7 @@ public class Individual extends RuleMLBlock {
 	}
 
 	public String toString() {
-		return value;
+		return "<em>" + value + "</em>";
 	}
 
 }

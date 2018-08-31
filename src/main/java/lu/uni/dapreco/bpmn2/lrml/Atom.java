@@ -95,7 +95,7 @@ public class Atom extends RuleMLBlock {
 		String pred = getLocalPredicate();
 		if (pred.equals("PersonalData") || pred.equals("Controller") || pred.equals("CompensationFor"))
 			return children.get(0).getName();
-		return null;
+		return pred;
 	}
 
 	// public String getFirstVariable() {
@@ -212,7 +212,7 @@ public class Atom extends RuleMLBlock {
 		switch (pred) {
 		// 1 argument
 		case "HasBeenDamaged":
-			return "There is a situation in which the data subject " + arguments.get(0) + " " + predText;
+			return "There is a situation in which " + arguments.get(0) + " " + predText;
 		case "Risk":
 			return "There is a " + predText + " for the subject " + arguments.get(0);
 		case "accurate":
@@ -220,6 +220,8 @@ public class Atom extends RuleMLBlock {
 		case "lawfulness":
 		case "fairness":
 			return "There is a situation of " + predText + " for the processing " + arguments.get(0);
+		case "ViolationOf":
+			return "There is a " + predText + " " + arguments.get(0);
 
 		// 2 arguments
 		case "AuthorizedBy":
@@ -237,11 +239,12 @@ public class Atom extends RuleMLBlock {
 		case "LegallyUnableTo":
 			return arguments.get(0) + " is " + predText + " perform operation " + arguments.get(1);
 		case "Identify":
-			return "There is an " + predText + " operation performed by " + arguments.get(0) + " on the data subject "
+			return "There is an " + predText + " operation performed by " + arguments.get(0) + " on "
 					+ arguments.get(1);
 		case "isBasedOn":
 			return "There is a situation where " + arguments.get(0) + " " + predText + " " + arguments.get(1);
 		case "GiveConsent":
+		case "WithdrawConsent":
 			return "There is a " + predText + " operation performed by " + arguments.get(0) + " concerning "
 					+ arguments.get(1);
 		case "Request":
@@ -294,8 +297,8 @@ public class Atom extends RuleMLBlock {
 			return arguments.get(0) + " " + predText + " towards " + arguments.get(2) + " concerning a "
 					+ arguments.get(1);
 		case "ReceiveFrom":
-			return "There is a situation where data subject " + arguments.get(0) + " " + predText + " "
-					+ arguments.get(2) + " the " + arguments.get(1);
+			return "There is a situation where " + arguments.get(0) + " " + predText + " " + arguments.get(2) + " the "
+					+ arguments.get(1);
 		default:
 			String beforeText = "", afterText = "";
 			String[] varNames = new String[arguments.size()];
@@ -578,7 +581,7 @@ public class Atom extends RuleMLBlock {
 	}
 
 	public boolean mustTranslate() {
-		if (getArguments().size() > 1)
+		if (getArguments().size() > 1 || reified)
 			return true;
 		switch (getLocalPredicate()) {
 		case "HasBeenDamaged":

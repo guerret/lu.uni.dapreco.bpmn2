@@ -1,6 +1,8 @@
 package lu.uni.dapreco.bpmn2.lrml;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -15,7 +17,7 @@ public class StatementSet extends BaseLRMLElement {
 	public StatementSet(Element node, XPathParser xpath) {
 		super(node, xpath);
 		name = root.getAttribute("key");
-		String search = "/lrml:LegalRuleML/lrml:Statements[@key='" + this.name + "']/lrml:ConstitutiveStatement";
+		String search = "/lrml:LegalRuleML/lrml:Statements[@key='" + name + "']/lrml:ConstitutiveStatement";
 		NodeList nl = xpath.parse(search);
 		statements = new Statement[nl.getLength()];
 		for (int i = 0; i < statements.length; i++)
@@ -74,9 +76,25 @@ public class StatementSet extends BaseLRMLElement {
 		return false;
 	}
 
-	public List<String> getExceptions(List<String> exceptions) {
-		for (Statement s : getStatements())
-			exceptions = s.getExceptions(exceptions);
+	// public List<String> getExceptions(List<String> exceptions) {
+	// for (Statement s : getStatements())
+	// exceptions = s.getExceptions(exceptions);
+	// return exceptions;
+	// }
+
+	public Map<String, List<Statement>> getExceptions() {
+		Map<String, List<Statement>> exceptions = new HashMap<String, List<Statement>>();
+		for (Statement statements : getStatements()) {
+			Map<String, List<Statement>> next = statements.getExceptions();
+			for (String e : next.keySet())
+				if (exceptions.containsKey(e))
+					for (Statement s : next.get(e)) {
+						if (!s.inList(exceptions.get(e)))
+							exceptions.get(e).add(s);
+					}
+				else
+					exceptions.put(e, next.get(e));
+		}
 		return exceptions;
 	}
 

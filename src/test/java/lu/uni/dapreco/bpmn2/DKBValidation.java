@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+//import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -14,6 +16,8 @@ import org.w3c.dom.Document;
 import lu.uni.dapreco.bpmn2.akn.AKNParser;
 import lu.uni.dapreco.bpmn2.lrml.LRMLParser;
 import lu.uni.dapreco.bpmn2.lrml.LRMLParser.RuleType;
+import lu.uni.dapreco.bpmn2.lrml.Statement;
+import lu.uni.dapreco.bpmn2.lrml.StatementSet;
 
 public class DKBValidation {
 
@@ -130,15 +134,19 @@ public class DKBValidation {
 	}
 
 	public TranslatorOutput translate(RuleType type) {
-		String ret = "";
-		List<String> exceptions = new ArrayList<String>();
 		String[] workingSet = typeMap.get(type);
+		Map<String, StatementSet> statementsMap = new HashMap<String, StatementSet>();
 		for (String baseRule : workingSet) {
 			String[] extended = aParser.getExtendedRuleSet(baseRule);
-			ret += lParser.translate(extended, aknPrefix);
-			exceptions = lParser.getExceptions(extended, aknPrefix, exceptions);
+			Map<String, StatementSet> statementSets = lParser.createStatements(extended, aknPrefix);
+			statementsMap.putAll(statementSets);
 		}
-		TranslatorOutput to = new TranslatorOutput(ret, lParser.translateExceptions(exceptions));
+		// List<String> exceptions = lParser.getExceptions(statementsMap, new
+		// ArrayList<String>());
+		Map<String, List<Statement>> exceptions = lParser.getExceptions(statementsMap);
+		// String translatedExceptions = lParser.translateExceptions(exceptions);
+		TranslatorOutput to = new TranslatorOutput(lParser.translate(statementsMap),
+				lParser.translateExceptions(exceptions));
 		return to;
 	}
 

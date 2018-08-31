@@ -1,6 +1,9 @@
 package lu.uni.dapreco.bpmn2.lrml;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -50,18 +53,50 @@ public class Statement extends BaseLRMLElement {
 		return ret;
 	}
 
-	public List<String> getExceptions(List<String> exceptions) {
+	// public List<String> getExceptions(List<String> exceptions) {
+	// String search =
+	// "ruleml:Rule/ruleml:if/descendant::ruleml:Atom/ruleml:Rel[starts-with(@iri,
+	// 'rioOnto:exception')]/@iri";
+	// NodeList exceptionNames = xpath.parseNode(search, root);
+	// for (int i = 0; i < exceptionNames.getLength(); i++) {
+	// String exceptionName = exceptionNames.item(i).getNodeValue();
+	// if (!exceptions.contains(exceptionName))
+	// exceptions.add(exceptionName);
+	// search =
+	// "/lrml:LegalRuleML/lrml:Statements/lrml:ConstitutiveStatement[ruleml:Rule/ruleml:then/descendant::ruleml:Atom/ruleml:Rel[@iri='"
+	// + exceptionName + "']]";
+	// NodeList nl = xpath.parseNode(search, root);
+	// for (int j = 0; j < nl.getLength(); j++)
+	// exceptions = new Statement((Element) nl.item(j), xpath,
+	// null).getExceptions(exceptions);
+	// }
+	// return exceptions;
+	// }
+
+	public Map<String, List<Statement>> getExceptions() {
+		Map<String, List<Statement>> exceptions = new HashMap<String, List<Statement>>();
 		String search = "ruleml:Rule/ruleml:if/descendant::ruleml:Atom/ruleml:Rel[starts-with(@iri, 'rioOnto:exception')]/@iri";
 		NodeList exceptionNames = xpath.parseNode(search, root);
 		for (int i = 0; i < exceptionNames.getLength(); i++) {
 			String exceptionName = exceptionNames.item(i).getNodeValue();
-			if (!exceptions.contains(exceptionName))
-				exceptions.add(exceptionName);
+			exceptions.putIfAbsent(exceptionName, new ArrayList<Statement>());
 			search = "/lrml:LegalRuleML/lrml:Statements/lrml:ConstitutiveStatement[ruleml:Rule/ruleml:then/descendant::ruleml:Atom/ruleml:Rel[@iri='"
 					+ exceptionName + "']]";
 			NodeList nl = xpath.parseNode(search, root);
-			for (int j = 0; j < nl.getLength(); j++)
-				exceptions = new Statement((Element) nl.item(j), xpath, null).getExceptions(exceptions);
+			for (int j = 0; j < nl.getLength(); j++) {
+				Statement statement = new Statement((Element) nl.item(j), xpath, null);
+				if (!exceptions.get(exceptionName).contains(statement))
+					exceptions.get(exceptionName).add(statement);
+				Map<String, List<Statement>> next = statement.getExceptions();
+				for (String e : next.keySet())
+					if (exceptions.containsKey(e))
+						for (Statement s : next.get(e)) {
+							if (!s.inList(exceptions.get(e)))
+								exceptions.get(e).add(s);
+						}
+					else
+						exceptions.put(e, next.get(e));
+			}
 		}
 		return exceptions;
 	}
@@ -73,6 +108,13 @@ public class Statement extends BaseLRMLElement {
 	@Override
 	public String toString() {
 		return name;
+	}
+
+	boolean inList(List<Statement> haystack) {
+		for (Statement s : haystack)
+			if (name.equals(s.getName()))
+				return true;
+		return false;
 	}
 
 }

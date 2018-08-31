@@ -130,4 +130,9 @@ public class RioOntoAtom extends Atom {
 		}
 	}
 
+	@Override
+	public boolean mustTranslate() {
+		return true;
+	}
+
 }

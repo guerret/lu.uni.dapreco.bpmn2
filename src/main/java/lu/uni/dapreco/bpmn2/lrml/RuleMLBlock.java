@@ -121,7 +121,7 @@ public class RuleMLBlock extends BaseLRMLElement {
 			if (child.type == RuleMLType.ATOM) {
 				Atom atom = (Atom) child;
 				String currentText = ret.toString();
-				if (!currentText.contains(child.toString()) && !currentText.contains(atom.getLocalPredicate())
+				if (!currentText.contains(child.toString())// && !currentText.contains(atom.getLocalPredicate())
 						&& atom.mustTranslate()) {
 					ret.add("<li>");
 					ret.addAll(child.translate());

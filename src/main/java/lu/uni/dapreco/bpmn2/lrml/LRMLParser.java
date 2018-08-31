@@ -2,6 +2,7 @@ package lu.uni.dapreco.bpmn2.lrml;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -276,21 +277,42 @@ public class LRMLParser {
 		}
 	}
 
-	public String translate(String[] extended, String prefix) {
+	public String translate(Map<String, StatementSet> statementsMap) {
 		String ret = "";
+		for (String rule : statementsMap.keySet())
+			ret += "<h2>" + rule + "</h2>\n" + statementsMap.get(rule).translate();
+		return ret;
+	}
+
+	public Map<String, StatementSet> createStatements(String[] extended, String prefix) {
+		Map<String, StatementSet> ret = new HashMap<String, StatementSet>();
 		for (String rule : extended) {
 			StatementSet statementSet = StatementSet.createFromArticle(prefix + ":" + rule, xpath);
 			if (statementSet != null)
-				ret += "<h2>" + rule + "</h2>\n" + statementSet.translate();
+				ret.put(rule, statementSet);
 		}
 		return ret;
 	}
 
-	public List<String> getExceptions(String[] extended, String prefix, List<String> exceptions) {
-		for (String rule : extended) {
-			StatementSet statementSet = StatementSet.createFromArticle(prefix + ":" + rule, xpath);
-			if (statementSet != null)
-				exceptions = statementSet.getExceptions(exceptions);
+	// public List<String> getExceptions(Map<String, StatementSet> statementsMap,
+	// List<String> exceptions) {
+	// for (String rule : statementsMap.keySet())
+	// exceptions = statementsMap.get(rule).getExceptions(exceptions);
+	// return exceptions;
+	// }
+
+	public Map<String, List<Statement>> getExceptions(Map<String, StatementSet> statementsMap) {
+		Map<String, List<Statement>> exceptions = new HashMap<String, List<Statement>>();
+		for (StatementSet set : statementsMap.values()) {
+			Map<String, List<Statement>> exceptionsForSet = set.getExceptions();
+			for (String name : exceptionsForSet.keySet())
+				if (exceptions.containsKey(name)) {
+					for (Statement s : exceptionsForSet.get(name)) {
+						if (!s.inList(exceptions.get(name)))
+							exceptions.get(name).add(s);
+					}
+				} else
+					exceptions.put(name, exceptionsForSet.get(name));
 		}
 		return exceptions;
 	}
@@ -310,22 +332,46 @@ public class LRMLParser {
 		return false;
 	}
 
-	public String translateExceptions(List<String> exceptions) {
+	// public String translateExceptions(List<String> exceptions) {
+	// String ret = "";
+	// for (String e : exceptions) {
+	// String search =
+	// "/lrml:LegalRuleML/lrml:Statements/lrml:ConstitutiveStatement[ruleml:Rule/ruleml:then/descendant::ruleml:Atom/ruleml:Rel[@iri='"
+	// + e + "']]";
+	// NodeList nl = xpath.parse(search);
+	// if (nl.getLength() == 0)
+	// ret += "PROBLEM: no definition found for exception " + e + "\n";
+	// else if (nl.getLength() == 1)
+	// ret += nl.getLength() + " definition found for exception " + e + "\n";
+	// else
+	// ret += nl.getLength() + " definitions found for exception " + e + "\n";
+	// for (int i = 0; i < nl.getLength(); i++) {
+	// Statement s = new Statement((Element) nl.item(i), xpath, null);
+	// ret += s.translate();
+	// }
+	// }
+	// return ret;
+	// }
+
+	public String translateExceptions(Map<String, List<Statement>> exceptionsMap) {
 		String ret = "";
-		for (String e : exceptions) {
-			String search = "/lrml:LegalRuleML/lrml:Statements/lrml:ConstitutiveStatement[ruleml:Rule/ruleml:then/descendant::ruleml:Atom/ruleml:Rel[@iri='"
-					+ e + "']]";
-			NodeList nl = xpath.parse(search);
-			if (nl.getLength() == 0)
-				ret += "PROBLEM: no definition found for exception " + e + "\n";
-			else if (nl.getLength() == 1)
-				ret += nl.getLength() + " definition found for exception " + e + "\n";
-			else
-				ret += nl.getLength() + " definitions found for exception " + e + "\n";
-			for (int i = 0; i < nl.getLength(); i++) {
-				Statement s = new Statement((Element) nl.item(i), xpath, null);
-				ret += s.translate();
+		for (String name : exceptionsMap.keySet()) {
+			List<Statement> exceptions = exceptionsMap.get(name);
+			if (name.contains(":"))
+				name = name.substring(name.indexOf(":") + 1);
+			ret += "<h2>Exception called " + name + "</h2>";
+			switch (exceptions.size()) {
+			case 0:
+				ret += "No definition found. This may be an error, or it may mean that the exception is enacted by an external legal source.";
+			case 1:
+				ret += exceptions.size() + " definition found";
+				break;
+			default:
+				ret += exceptions.size() + " definitions found";
 			}
+			for (Statement s : exceptions)
+				ret += s.translate();
+			ret += "<hr />";
 		}
 		return ret;
 	}

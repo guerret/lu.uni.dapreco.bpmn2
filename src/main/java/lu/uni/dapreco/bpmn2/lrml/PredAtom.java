@@ -16,9 +16,9 @@ public class PredAtom extends Atom {
 	@Override
 	public List<RuleMLBlock> getNewArgumentsToTranslate() {
 		List<RuleMLBlock> arguments = getArguments();
-		switch (predicateIRI) {
-		case "pred:numeric-greater-than-or-equal":
-			// only first argument, the second is the time
+		switch (getLocalPredicate()) {
+		case "numeric-greater-than-or-equal":
+		case "numeric-less-than":
 			return new ArrayList<RuleMLBlock>();
 		default:
 			return arguments;
@@ -32,6 +32,7 @@ public class PredAtom extends Atom {
 		String translation = toString();
 		switch (getLocalPredicate()) {
 		case "numeric-greater-than-or-equal":
+		case "numeric-less-than":
 		default:
 			translation += "<br />";
 		}
@@ -48,11 +49,18 @@ public class PredAtom extends Atom {
 		String pred = getLocalPredicate();
 		switch (pred) {
 		case "numeric-greater-than-or-equal":
-			return "<span>" + children.get(0).getName() + " is greater than, or at least equal to, "
-					+ children.get(1).getName() + "</span>";
+			return "<span>" + children.get(0) + " is greater than, or at least equal to, " + children.get(1)
+					+ "</span>";
+		case "numeric-less-than":
+			return "<span>" + children.get(0) + " is less than " + children.get(1) + "</span>";
 		default:
 			return "UNKNOWN PRED PREDICATE: " + predicateIRI;
 		}
+	}
+
+	@Override
+	public boolean mustTranslate() {
+		return true;
 	}
 
 }
