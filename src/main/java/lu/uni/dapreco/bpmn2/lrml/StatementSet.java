@@ -52,8 +52,7 @@ public class StatementSet extends BaseLRMLElement {
 
 	public void remove(XPathParser xpath) {
 		super.remove();
-		String search = "lrml:ConstitutiveStatement";
-		NodeList nl = xpath.parseNode(search, root);
+		NodeList nl = root.getElementsByTagNameNS(LRMLParser.lrmlNS, "ConstitutiveStatement");
 		for (int i = 0; i < nl.getLength(); i++) {
 			String key = ((Element) nl.item(i)).getAttribute("key");
 			InScope in = InScope.create(key, xpath);

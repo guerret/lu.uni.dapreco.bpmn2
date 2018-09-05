@@ -173,9 +173,9 @@ public class LRMLParser {
 		String search = "/lrml:LegalRuleML/lrml:LegalReferences/lrml:LegalReference";
 		NodeList nl = xpath.parse(search);
 		for (int i = 0; i < nl.getLength(); i++) {
-			String refID = ((Element) nl.item(i)).getAttribute("refID");
-			if (!inWorkingSet(refID, workingSet, prefix))
-				remove(refID);
+			LegalReference lr = new LegalReference((Element) nl.item(i));
+			if (!inWorkingSet(lr.getRefID(), workingSet, prefix))
+				remove(lr);
 		}
 		StatementSet s = StatementSet.create("statements276", xpath);
 		s.remove(xpath);
@@ -227,8 +227,7 @@ public class LRMLParser {
 		return false;
 	}
 
-	public void remove(String article) {
-		LegalReference lr = LegalReference.createFromRefId(article, xpath);
+	public void remove(LegalReference lr) {
 		if (lr != null) {
 			lr.remove();
 			String refersTo = lr.getRefersTo();
