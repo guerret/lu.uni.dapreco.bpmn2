@@ -306,6 +306,7 @@ public class Atom extends RuleMLBlock {
 		case "HealthData":
 		case "SexualData":
 		case "SexualOrientationData":
+		case "ViolationOf":
 			return false;
 		default:
 			return true;

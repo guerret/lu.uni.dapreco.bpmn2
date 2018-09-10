@@ -152,6 +152,8 @@ public class RuleMLBlock extends BaseLRMLElement {
 			RuleMLBlock child = elems.get(0);
 			if (child.type == RuleMLType.ATOM) {
 				Atom atom = (Atom) child;
+				if (atom.predicateIRI.equals("dapreco:ViolationOf"))
+					System.out.println();
 				String currentText = ret.toString();
 				if (!currentText.contains(child.toString())
 						// && !currentText.contains(atom.getLocalPredicate())
@@ -182,20 +184,10 @@ public class RuleMLBlock extends BaseLRMLElement {
 		return ret;
 	}
 
-	// private List<String> translateNaf2() {
-	// List<String> ret = new ArrayList<String>();
-	// ret.add("<span>The following exception does not occur (see exceptions
-	// document):</span><ul><li>");
-	// ret.addAll(children.get(0).translate());
-	// ret.add("</li>");
-	// ret.add("</ul>");
-	// return ret;
-	// }
-
 	private List<RuleMLBlock> getRealChildren() {
 		List<RuleMLBlock> ret = new ArrayList<RuleMLBlock>();
 		for (RuleMLBlock child : children)
-			if (child.type != RuleMLType.VAR)
+			if (child.type != RuleMLType.VAR || child.type != RuleMLType.EXPR || child.type != RuleMLType.IND)
 				ret.add(child);
 		return ret;
 	}

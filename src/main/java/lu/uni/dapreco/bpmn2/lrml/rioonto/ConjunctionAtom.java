@@ -33,7 +33,7 @@ public class ConjunctionAtom extends GenericRioOntoAtom {
 		ret.add(translation);
 		List<Atom> definitionAtoms = getDefinitionAtoms(arguments);
 		for (Atom d : definitionAtoms)
-			if (d.getArguments().size() > 1) {
+			if (!d.isRestriction()) {
 				if (arguments.size() > 1)
 					ret.add("<li>");
 				ret.addAll(d.translate());
