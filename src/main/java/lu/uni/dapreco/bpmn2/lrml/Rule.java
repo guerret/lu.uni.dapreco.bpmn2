@@ -9,17 +9,24 @@ import org.w3c.dom.Node;
 import lu.uni.dapreco.bpmn2.XPathParser;
 import lu.uni.dapreco.bpmn2.lrml.LRMLParser.RuleType;
 import lu.uni.dapreco.bpmn2.lrml.Side.SideType;
+import lu.uni.dapreco.bpmn2.lrml.rioonto.DeonticAtom;
 
 public class Rule extends BaseLRMLElement {
 
 	private RuleType type;
 
+	private DeonticAtom bearer;
+
 	private Side lhs;
 	private Side rhs;
 
-	public Rule(Element node, RuleType t, XPathParser xpath) {
+	private Statement owner;
+
+	public Rule(Element node, RuleType t, XPathParser xpath, Statement o) {
 		super(node, xpath);
 		type = t;
+		bearer = null;
+		owner = o;
 		Node child = root.getFirstChild();
 		while (child.getNodeName() != "ruleml:if")
 			child = child.getNextSibling();
@@ -35,12 +42,24 @@ public class Rule extends BaseLRMLElement {
 		return type;
 	}
 
+	public DeonticAtom getBearer() {
+		return bearer;
+	}
+
+	public void setBearer(DeonticAtom a) {
+		bearer = a;
+	}
+
 	public Side getLHS() {
 		return lhs;
 	}
 
 	public Side getRHS() {
 		return rhs;
+	}
+
+	public Statement getOwnerStatement() {
+		return owner;
 	}
 
 	public String translate() {
@@ -82,6 +101,12 @@ public class Rule extends BaseLRMLElement {
 		if (rhs.isDefined(var))
 			return SideType.THEN;
 		return null;
+	}
+
+	public Statement getBearerStatement() {
+		if (bearer == null)
+			return null;
+		return bearer.getOwnerSide().getOwnerRule().getOwnerStatement();
 	}
 
 }

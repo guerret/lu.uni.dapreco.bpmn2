@@ -38,8 +38,8 @@ public class DKBValidation {
 	// private static final String aknLocal = resDir + "/" + aknName;
 
 	public static String aknPrefix = "GDPR";
-	private static String ontoPrefix = "prOnto";
-	private static String daprecoPrefix = "dapreco";
+	public static String ontoPrefix = "prOnto";
+	public static String daprecoPrefix = "dapreco";
 
 	private static String[] permissions = {}, obligations = {}, constitutive = {};
 
@@ -92,33 +92,43 @@ public class DKBValidation {
 		copy.write("rioKB_GDPR_examples_" + type + ".xml");
 	}
 
-	public String[] parseMissingFromSet(RuleType type) {
-		Vector<String> missVec = new Vector<String>();
-		String[] workingSet = typeMap.get(type);
-		for (String rule : workingSet) {
-			// In the new Dapreco KB, the non-aligned predicates have a "dapreco:" prefix
-			String[] daprecoPredicates = lParser.findPredicatesInArticle(aknPrefix + ":" + rule, daprecoPrefix, type);
-			// String[] ruleMissing = oParser.getMissingPredicates(predicates);
-			for (String m : daprecoPredicates)
-				if (!missVec.contains(m))
-					missVec.add(m);
-		}
-		String[] missing = new String[missVec.size()];
-		return missVec.toArray(missing);
-	}
+	// public String[] parseMissingFromSet(RuleType type) {
+	// Vector<String> missVec = new Vector<String>();
+	// String[] workingSet = typeMap.get(type);
+	// for (String rule : workingSet) {
+	// String[] daprecoPredicates = lParser.findPredicatesInArticle(aknPrefix + ":"
+	// + rule, daprecoPrefix, type);
+	// for (String m : daprecoPredicates)
+	// if (!missVec.contains(m))
+	// missVec.add(m);
+	// }
+	// String[] missing = new String[missVec.size()];
+	// return missVec.toArray(missing);
+	// }
 
-	public String[] parsePredicatesInSet(RuleType type) {
+	public String[] parsePredicatesInSet(RuleType type, String prefix) {
 		String[] workingSet = typeMap.get(type);
+		Map<String, StatementSet> statementsMap = new HashMap<String, StatementSet>();
 		Vector<String> predVec = new Vector<String>();
 		for (String baseRule : workingSet) {
 			String[] extended = aParser.getExtendedRuleSet(baseRule);
 			for (String rule : extended) {
-				String[] rulePredicates = lParser.findPredicatesInArticle(aknPrefix + ":" + rule, ontoPrefix, type);
+				String[] rulePredicates = lParser.findPredicatesInArticle(aknPrefix + ":" + rule, prefix, type);
 				for (String p : rulePredicates)
 					if (!predVec.contains(p))
 						predVec.add(p);
 			}
+			Map<String, StatementSet> statementSets = lParser.createStatements(extended, aknPrefix);
+			statementsMap.putAll(statementSets);
 		}
+		Map<String, List<Statement>> exceptions = lParser.getExceptions(statementsMap);
+		for (List<Statement> set : exceptions.values())
+			for (Statement s : set) {
+				String[] exceptionPredicates = s.findPredicates(ontoPrefix);
+				for (String p : exceptionPredicates)
+					if (!predVec.contains(p))
+						predVec.add(p);
+			}
 		String[] predicates = new String[predVec.size()];
 		return predVec.toArray(predicates);
 	}
@@ -128,7 +138,7 @@ public class DKBValidation {
 	}
 
 	public void createReducedGraph(RuleType type) {
-		String[] predicates = parsePredicatesInSet(type);
+		String[] predicates = parsePredicatesInSet(type, ontoPrefix);
 		Document doc = gParser.removeUnusedElements(predicates);
 		gParser.writeReducedDocument(doc, type);
 	}
@@ -141,10 +151,7 @@ public class DKBValidation {
 			Map<String, StatementSet> statementSets = lParser.createStatements(extended, aknPrefix);
 			statementsMap.putAll(statementSets);
 		}
-		// List<String> exceptions = lParser.getExceptions(statementsMap, new
-		// ArrayList<String>());
 		Map<String, List<Statement>> exceptions = lParser.getExceptions(statementsMap);
-		// String translatedExceptions = lParser.translateExceptions(exceptions);
 		TranslatorOutput to = new TranslatorOutput(lParser.translate(statementsMap),
 				lParser.translateExceptions(exceptions));
 		return to;

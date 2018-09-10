@@ -1,6 +1,5 @@
 package lu.uni.dapreco.bpmn2.lrml;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -75,25 +74,9 @@ public class StatementSet extends BaseLRMLElement {
 		return false;
 	}
 
-	// public List<String> getExceptions(List<String> exceptions) {
-	// for (Statement s : getStatements())
-	// exceptions = s.getExceptions(exceptions);
-	// return exceptions;
-	// }
-
-	public Map<String, List<Statement>> getExceptions() {
-		Map<String, List<Statement>> exceptions = new HashMap<String, List<Statement>>();
-		for (Statement statements : getStatements()) {
-			Map<String, List<Statement>> next = statements.getExceptions();
-			for (String e : next.keySet())
-				if (exceptions.containsKey(e))
-					for (Statement s : next.get(e)) {
-						if (!s.inList(exceptions.get(e)))
-							exceptions.get(e).add(s);
-					}
-				else
-					exceptions.put(e, next.get(e));
-		}
+	public Map<String, List<Statement>> getExceptions(Map<String, List<Statement>> exceptions) {
+		for (Statement statements : getStatements())
+			exceptions = statements.getExceptions(exceptions);
 		return exceptions;
 	}
 

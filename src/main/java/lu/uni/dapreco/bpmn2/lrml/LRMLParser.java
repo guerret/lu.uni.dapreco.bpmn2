@@ -293,26 +293,10 @@ public class LRMLParser {
 		return ret;
 	}
 
-	// public List<String> getExceptions(Map<String, StatementSet> statementsMap,
-	// List<String> exceptions) {
-	// for (String rule : statementsMap.keySet())
-	// exceptions = statementsMap.get(rule).getExceptions(exceptions);
-	// return exceptions;
-	// }
-
 	public Map<String, List<Statement>> getExceptions(Map<String, StatementSet> statementsMap) {
 		Map<String, List<Statement>> exceptions = new HashMap<String, List<Statement>>();
-		for (StatementSet set : statementsMap.values()) {
-			Map<String, List<Statement>> exceptionsForSet = set.getExceptions();
-			for (String name : exceptionsForSet.keySet())
-				if (exceptions.containsKey(name)) {
-					for (Statement s : exceptionsForSet.get(name)) {
-						if (!s.inList(exceptions.get(name)))
-							exceptions.get(name).add(s);
-					}
-				} else
-					exceptions.put(name, exceptionsForSet.get(name));
-		}
+		for (StatementSet set : statementsMap.values())
+			exceptions = set.getExceptions(exceptions);
 		return exceptions;
 	}
 
@@ -330,27 +314,6 @@ public class LRMLParser {
 		}
 		return false;
 	}
-
-	// public String translateExceptions(List<String> exceptions) {
-	// String ret = "";
-	// for (String e : exceptions) {
-	// String search =
-	// "/lrml:LegalRuleML/lrml:Statements/lrml:ConstitutiveStatement[ruleml:Rule/ruleml:then/descendant::ruleml:Atom/ruleml:Rel[@iri='"
-	// + e + "']]";
-	// NodeList nl = xpath.parse(search);
-	// if (nl.getLength() == 0)
-	// ret += "PROBLEM: no definition found for exception " + e + "\n";
-	// else if (nl.getLength() == 1)
-	// ret += nl.getLength() + " definition found for exception " + e + "\n";
-	// else
-	// ret += nl.getLength() + " definitions found for exception " + e + "\n";
-	// for (int i = 0; i < nl.getLength(); i++) {
-	// Statement s = new Statement((Element) nl.item(i), xpath, null);
-	// ret += s.translate();
-	// }
-	// }
-	// return ret;
-	// }
 
 	public String translateExceptions(Map<String, List<Statement>> exceptionsMap) {
 		String ret = "";

@@ -14,7 +14,7 @@ public class PredAtom extends Atom {
 	}
 
 	@Override
-	public List<RuleMLBlock> getNewArgumentsToTranslate() {
+	public List<RuleMLBlock> getArgumentsToTranslate() {
 		List<RuleMLBlock> arguments = getArguments();
 		switch (getLocalPredicate()) {
 		case "numeric-greater-than-or-equal":
@@ -28,7 +28,7 @@ public class PredAtom extends Atom {
 	@Override
 	public List<String> translate() {
 		List<String> ret = new ArrayList<String>();
-		List<RuleMLBlock> arguments = getNewArgumentsToTranslate();
+		List<RuleMLBlock> arguments = getArgumentsToTranslate();
 		String translation = toString();
 		switch (getLocalPredicate()) {
 		case "numeric-greater-than-or-equal":
@@ -37,7 +37,7 @@ public class PredAtom extends Atom {
 			translation += "<br />";
 		}
 		ret.add(translation);
-		List<Atom> definitionAtoms = getNewDefinitionAtoms(arguments);
+		List<Atom> definitionAtoms = getDefinitionAtoms(arguments);
 		for (Atom d : definitionAtoms)
 			if (d.getArguments().size() > 1)
 				ret.addAll(d.translate());
@@ -59,8 +59,8 @@ public class PredAtom extends Atom {
 	}
 
 	@Override
-	public boolean mustTranslate() {
-		return true;
+	public boolean isRestriction() {
+		return false;
 	}
 
 }

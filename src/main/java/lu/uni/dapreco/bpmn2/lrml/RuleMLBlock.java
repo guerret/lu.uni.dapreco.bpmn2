@@ -7,6 +7,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import lu.uni.dapreco.bpmn2.XPathParser;
+import lu.uni.dapreco.bpmn2.lrml.rioonto.ExceptionAtom;
 
 public class RuleMLBlock extends BaseLRMLElement {
 
@@ -83,6 +84,10 @@ public class RuleMLBlock extends BaseLRMLElement {
 		return type;
 	}
 
+	public Side getOwnerSide() {
+		return owner;
+	}
+
 	public List<String> translate() {
 		switch (type) {
 		case EXISTS:
@@ -113,16 +118,44 @@ public class RuleMLBlock extends BaseLRMLElement {
 		return ret;
 	}
 
+	// private List<String> translateAnd2() {
+	// List<String> ret = new ArrayList<String>();
+	// ret.add("<ul>");
+	// List<RuleMLBlock> elems = getRealChildren();
+	// for (RuleMLBlock child : elems) {
+	// if (child.type == RuleMLType.ATOM) {
+	// Atom atom = (Atom) child;
+	// String currentText = ret.toString();
+	// if (!currentText.contains(child.toString())
+	// // && !currentText.contains(atom.getLocalPredicate())
+	// && !atom.isDefinition()) {
+	// ret.add("<li>");
+	// ret.addAll(child.translate());
+	// ret.add("</li>");
+	// }
+	// } else if (child.type == RuleMLType.NAF) {
+	// ret.add("<li>");
+	// ret.addAll(child.translate());
+	// ret.add("</li>");
+	// } else
+	// ret.add("<li>O cosa ci fa?</li>");
+	// }
+	// ret.add("</ul>");
+	// return ret;
+	// }
+
 	private List<String> translateAnd() {
 		List<String> ret = new ArrayList<String>();
 		ret.add("<ul>");
 		List<RuleMLBlock> elems = getRealChildren();
-		for (RuleMLBlock child : elems) {
+		while (!elems.isEmpty()) {
+			RuleMLBlock child = elems.get(0);
 			if (child.type == RuleMLType.ATOM) {
 				Atom atom = (Atom) child;
 				String currentText = ret.toString();
-				if (!currentText.contains(child.toString())// && !currentText.contains(atom.getLocalPredicate())
-						&& atom.mustTranslate()) {
+				if (!currentText.contains(child.toString())
+						// && !currentText.contains(atom.getLocalPredicate())
+						&& !atom.isRestriction()) {
 					ret.add("<li>");
 					ret.addAll(child.translate());
 					ret.add("</li>");
@@ -133,6 +166,8 @@ public class RuleMLBlock extends BaseLRMLElement {
 				ret.add("</li>");
 			} else
 				ret.add("<li>O cosa ci fa?</li>");
+			List<RuleMLBlock> translated = child.getTranslated();
+			elems.removeAll(translated);
 		}
 		ret.add("</ul>");
 		return ret;
@@ -140,13 +175,22 @@ public class RuleMLBlock extends BaseLRMLElement {
 
 	private List<String> translateNaf() {
 		List<String> ret = new ArrayList<String>();
-		ret.add("<span>The following exception does not occur (see exceptions document):</span><ul><li>");
-		for (RuleMLBlock child : children)
-			ret.addAll(child.translate());
-		ret.add("</li>");
-		ret.add("</ul>");
+		ExceptionAtom exception = (ExceptionAtom) children.get(0);
+		exception.setNegation(getName());
+		ret.add(exception.toString());
+		exception.setNegation(null);
 		return ret;
 	}
+
+	// private List<String> translateNaf2() {
+	// List<String> ret = new ArrayList<String>();
+	// ret.add("<span>The following exception does not occur (see exceptions
+	// document):</span><ul><li>");
+	// ret.addAll(children.get(0).translate());
+	// ret.add("</li>");
+	// ret.add("</ul>");
+	// return ret;
+	// }
 
 	private List<RuleMLBlock> getRealChildren() {
 		List<RuleMLBlock> ret = new ArrayList<RuleMLBlock>();
@@ -173,6 +217,12 @@ public class RuleMLBlock extends BaseLRMLElement {
 				return false;
 		}
 		return true;
+	}
+
+	public List<RuleMLBlock> getTranslated() {
+		List<RuleMLBlock> ret = new ArrayList<RuleMLBlock>();
+		ret.add(this);
+		return ret;
 	}
 
 }

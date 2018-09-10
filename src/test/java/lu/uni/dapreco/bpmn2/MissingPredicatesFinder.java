@@ -11,7 +11,7 @@ public class MissingPredicatesFinder {
 	}
 
 	public void printMissingFromSet(RuleType type) {
-		String[] missing = dkb.parseMissingFromSet(type);
+		String[] missing = dkb.parsePredicatesInSet(type, DKBValidation.daprecoPrefix);
 		if (missing.length > 0) {
 			System.out.println(type);
 			for (String c : missing)

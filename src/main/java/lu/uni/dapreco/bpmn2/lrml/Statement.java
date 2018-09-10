@@ -1,9 +1,9 @@
 package lu.uni.dapreco.bpmn2.lrml;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -18,6 +18,7 @@ public class Statement extends BaseLRMLElement {
 	private RuleType type;
 	private StatementSet owner;
 	private Rule rule;
+	private Statement identical;
 
 	public Statement(Element node, XPathParser xpath, StatementSet set) {
 		super(node, xpath);
@@ -27,7 +28,17 @@ public class Statement extends BaseLRMLElement {
 			child = child.getNextSibling();
 		type = LRMLParser.contextMap.getRuleType(name);
 		owner = set;
-		rule = new Rule((Element) child, type, xpath);
+		rule = new Rule((Element) child, type, xpath, this);
+		identical = null;
+		if (owner != null) {
+			Statement[] statements = owner.getStatements();
+			for (int i = 0; i < statements.length; i++)
+				if (statements[i] != null && statements[i].rule.getLHS().equals(rule.getLHS())) {
+					identical = statements[i];
+					statements[i].rule.setBearer(rule.getBearer());
+					break;
+				}
+		}
 	}
 
 	public String getName() {
@@ -43,59 +54,44 @@ public class Statement extends BaseLRMLElement {
 	}
 
 	public String translate() {
-		String ret = "<h3>Statement " + name + "</h3>" + rule.translate() + "\n";
-		if (owner != null) {
-			Statement[] statements = owner.getStatements();
-			for (int i = 0; i < statements.length && statements[i] != this; i++)
-				if (statements[i].getRule().getLHS().equals(getRule().getLHS()))
-					ret += "<em>The IF part is identical to that of " + statements[i].name + "</em>";
-		}
-		return ret;
+		if (identical != null)
+			return "";
+		Statement bearerStatement = rule.getBearerStatement();
+		if (bearerStatement != null && bearerStatement != this)
+			return "<h3>Statements " + name + " and " + bearerStatement.name + "</h3>" + rule.translate() + "\n";
+		return "<h3>Statement " + name + "</h3>" + rule.translate() + "\n";
 	}
 
-	// public List<String> getExceptions(List<String> exceptions) {
-	// String search =
-	// "ruleml:Rule/ruleml:if/descendant::ruleml:Atom/ruleml:Rel[starts-with(@iri,
-	// 'rioOnto:exception')]/@iri";
-	// NodeList exceptionNames = xpath.parseNode(search, root);
-	// for (int i = 0; i < exceptionNames.getLength(); i++) {
-	// String exceptionName = exceptionNames.item(i).getNodeValue();
-	// if (!exceptions.contains(exceptionName))
-	// exceptions.add(exceptionName);
-	// search =
-	// "/lrml:LegalRuleML/lrml:Statements/lrml:ConstitutiveStatement[ruleml:Rule/ruleml:then/descendant::ruleml:Atom/ruleml:Rel[@iri='"
-	// + exceptionName + "']]";
-	// NodeList nl = xpath.parseNode(search, root);
-	// for (int j = 0; j < nl.getLength(); j++)
-	// exceptions = new Statement((Element) nl.item(j), xpath,
-	// null).getExceptions(exceptions);
-	// }
-	// return exceptions;
-	// }
+	public String[] findPredicates(String prefix) {
+		Vector<String> predicateVector = new Vector<String>();
+		String search = "descendant::ruleml:Atom/ruleml:Rel[starts-with(@iri,'" + prefix + ":')]/@iri";
+		NodeList nl = xpath.parseNode(search, root);
+		for (int i = 0; i < nl.getLength(); i++) {
+			String predicate = nl.item(i).getNodeValue().substring(prefix.length() + 1);
+			if (!predicateVector.contains(predicate))
+				predicateVector.add(predicate);
+		}
+		String[] predicates = new String[predicateVector.size()];
+		return predicateVector.toArray(predicates);
+	}
 
-	public Map<String, List<Statement>> getExceptions() {
-		Map<String, List<Statement>> exceptions = new HashMap<String, List<Statement>>();
+	public Map<String, List<Statement>> getExceptions(Map<String, List<Statement>> exceptions) {
 		String search = "ruleml:Rule/ruleml:if/descendant::ruleml:Atom/ruleml:Rel[starts-with(@iri, 'rioOnto:exception')]/@iri";
 		NodeList exceptionNames = xpath.parseNode(search, root);
 		for (int i = 0; i < exceptionNames.getLength(); i++) {
 			String exceptionName = exceptionNames.item(i).getNodeValue();
-			exceptions.putIfAbsent(exceptionName, new ArrayList<Statement>());
-			search = "/lrml:LegalRuleML/lrml:Statements/lrml:ConstitutiveStatement[ruleml:Rule/ruleml:then/descendant::ruleml:Atom/ruleml:Rel[@iri='"
-					+ exceptionName + "']]";
-			NodeList nl = xpath.parseNode(search, root);
-			for (int j = 0; j < nl.getLength(); j++) {
-				Statement statement = new Statement((Element) nl.item(j), xpath, null);
-				if (!exceptions.get(exceptionName).contains(statement))
-					exceptions.get(exceptionName).add(statement);
-				Map<String, List<Statement>> next = statement.getExceptions();
-				for (String e : next.keySet())
-					if (exceptions.containsKey(e))
-						for (Statement s : next.get(e)) {
-							if (!s.inList(exceptions.get(e)))
-								exceptions.get(e).add(s);
-						}
-					else
-						exceptions.put(e, next.get(e));
+			// If already in there, then exception has been parsed recursively
+			if (!exceptions.containsKey(exceptionName)) {
+				exceptions.put(exceptionName, new ArrayList<Statement>());
+				search = "/lrml:LegalRuleML/lrml:Statements/lrml:ConstitutiveStatement[ruleml:Rule/ruleml:then/descendant::ruleml:Atom/ruleml:Rel[@iri='"
+						+ exceptionName + "']]";
+				NodeList nl = xpath.parseNode(search, root);
+				for (int j = 0; j < nl.getLength(); j++) {
+					Statement statement = new Statement((Element) nl.item(j), xpath, null);
+					if (!exceptions.get(exceptionName).contains(statement))
+						exceptions.get(exceptionName).add(statement);
+					exceptions = statement.getExceptions(exceptions);
+				}
 			}
 		}
 		return exceptions;
@@ -108,13 +104,6 @@ public class Statement extends BaseLRMLElement {
 	@Override
 	public String toString() {
 		return name;
-	}
-
-	boolean inList(List<Statement> haystack) {
-		for (Statement s : haystack)
-			if (name.equals(s.getName()))
-				return true;
-		return false;
 	}
 
 }

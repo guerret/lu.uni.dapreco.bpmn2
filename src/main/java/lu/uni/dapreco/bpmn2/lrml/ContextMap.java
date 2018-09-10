@@ -1,12 +1,13 @@
 package lu.uni.dapreco.bpmn2.lrml;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import lu.uni.dapreco.bpmn2.XPathParser;
@@ -26,52 +27,53 @@ public class ContextMap {
 			Map.entry(RuleType.CONSTITUTIVE, contextType[2]), Map.entry(RuleType.MAPPING, contextType[3]),
 			Map.entry(RuleType.ALL, ""));
 
-	private Map<String, Node> contextMap;
+	private Map<String, List<String>> contextMapping;
 
 	public ContextMap(Document d, XPathParser x) {
 		doc = d;
 		xpath = x;
-		contextMap = new HashMap<String, Node>();
-		NodeList contextsNodes = doc.getElementsByTagName("lrml:Context");
+		contextMapping = new HashMap<String, List<String>>();
+		NodeList contextsNodes = doc.getElementsByTagNameNS(LRMLParser.lrmlNS, "Context");
 		for (int i = 0; i < contextsNodes.getLength(); i++) {
 			Element elem = (Element) contextsNodes.item(i);
 			String name = elem.getAttribute("type").substring(("rioOnto:").length());
-			if (!contextMap.containsKey(name))
-				contextMap.put(name, elem);
+			if (!contextMapping.containsKey(name)) {
+				// contextMap.put(name, elem);
+				ArrayList<String> statementList = new ArrayList<String>();
+				NodeList statements = elem.getElementsByTagNameNS(LRMLParser.lrmlNS, "inScope");
+				for (int j = 0; j < statements.getLength(); j++)
+					statementList.add(((Element) statements.item(j)).getAttribute("keyref").substring("#".length()));
+				contextMapping.put(name, statementList);
+			}
 		}
+		return;
 	}
 
 	public boolean isInContext(Element statement, RuleType type) {
-		Node contextNode = getContextNode(type);
-		if (contextNode != null) {
-			String search = "lrml:inScope[@keyref='#" + statement.getAttribute("key") + "']";
-			NodeList nl = xpath.parseNode(search, contextNode);
-			if (nl.getLength() > 0)
-				return true;
-		}
+		String typeName = contextNames.get(type);
+		if (contextMapping.containsKey(typeName))
+			return contextMapping.get(typeName).contains(statement.getAttribute("key"));
 		return false;
 	}
 
-	private Node getContextNode(RuleType type) {
-		String contextName = contextNames.get(type);
-		if (contextMap.containsKey(contextName))
-			return contextMap.get(contextName);
-		return null;
-	}
-
 	public String[] getAllStatementsInContext(RuleType type) {
-		Node contextNode = getContextNode(type);
-		if (contextNode == null)
+		if (!contextMapping.containsKey(contextNames.get(type)))
 			return new String[0];
-		String search = "lrml:inScope/@keyref";
-		NodeList nl = xpath.parseNode(search, contextNode);
-		String[] statements = new String[nl.getLength()];
-		for (int i = 0; i < nl.getLength(); i++)
-			statements[i] = nl.item(i).getNodeValue();
+		List<String> list = contextMapping.get(contextNames.get(type));
+		String[] statements = new String[list.size()];
+		for (int i = 0; i < list.size(); i++)
+			statements[i] = list.get(i);
 		return statements;
 	}
 
 	public RuleType getRuleType(String statement) {
+		for (String contextName : contextMapping.keySet()) {
+			if (contextMapping.get(contextName).contains(statement)) {
+				Map<String, RuleType> inversed = contextNames.entrySet().stream()
+						.collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
+				return inversed.get(contextName);
+			}
+		}
 		String search = "//lrml:LegalRuleML/lrml:Context/lrml:inScope[@keyref='#" + statement + "']";
 		NodeList nl = xpath.parse(search);
 		if (nl.getLength() == 0)

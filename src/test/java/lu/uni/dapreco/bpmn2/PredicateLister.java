@@ -11,7 +11,7 @@ public class PredicateLister {
 	}
 
 	private void printPredicatesInSet(RuleType type) {
-		String[] predicates = dkb.parsePredicatesInSet(type);
+		String[] predicates = dkb.parsePredicatesInSet(type, DKBValidation.ontoPrefix);
 		if (predicates.length > 0) {
 			System.out.println(type);
 			for (String c : predicates) {
