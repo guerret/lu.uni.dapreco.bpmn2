@@ -146,32 +146,37 @@ public class RuleMLBlock extends BaseLRMLElement {
 
 	private List<String> translateAnd() {
 		List<String> ret = new ArrayList<String>();
-		ret.add("<ul>");
 		List<RuleMLBlock> elems = getRealChildren();
+		String list = null;
+		if (elems.size() > 1)
+			list = "<ul>";
+		if (list != null)
+			ret.add("<ul>");
 		while (!elems.isEmpty()) {
 			RuleMLBlock child = elems.get(0);
 			if (child.type == RuleMLType.ATOM) {
 				Atom atom = (Atom) child;
-				if (atom.predicateIRI.equals("dapreco:ViolationOf"))
-					System.out.println();
 				String currentText = ret.toString();
-				if (!currentText.contains(child.toString())
-						// && !currentText.contains(atom.getLocalPredicate())
-						&& !atom.isRestriction()) {
-					ret.add("<li>");
+				if (!currentText.contains(child.toString()) && !atom.inline()) {
+					if (list != null)
+						ret.add("<li>");
 					ret.addAll(child.translate());
-					ret.add("</li>");
+					if (list != null)
+						ret.add("</li>");
 				}
 			} else if (child.type == RuleMLType.NAF) {
-				ret.add("<li>");
+				if (list != null)
+					ret.add("<li>");
 				ret.addAll(child.translate());
-				ret.add("</li>");
+				if (list != null)
+					ret.add("</li>");
 			} else
-				ret.add("<li>O cosa ci fa?</li>");
+				ret.add("<li>PROBLEM: no idea what this is</li>");
 			List<RuleMLBlock> translated = child.getTranslated();
 			elems.removeAll(translated);
 		}
-		ret.add("</ul>");
+		if (list != null)
+			ret.add("</ul>");
 		return ret;
 	}
 
@@ -187,7 +192,7 @@ public class RuleMLBlock extends BaseLRMLElement {
 	private List<RuleMLBlock> getRealChildren() {
 		List<RuleMLBlock> ret = new ArrayList<RuleMLBlock>();
 		for (RuleMLBlock child : children)
-			if (child.type != RuleMLType.VAR || child.type != RuleMLType.EXPR || child.type != RuleMLType.IND)
+			if (child.type != RuleMLType.VAR && child.type != RuleMLType.EXPR && child.type != RuleMLType.IND)
 				ret.add(child);
 		return ret;
 	}

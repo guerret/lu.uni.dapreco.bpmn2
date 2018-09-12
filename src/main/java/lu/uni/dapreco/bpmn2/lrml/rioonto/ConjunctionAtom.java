@@ -10,17 +10,10 @@ import lu.uni.dapreco.bpmn2.lrml.Atom;
 import lu.uni.dapreco.bpmn2.lrml.RuleMLBlock;
 import lu.uni.dapreco.bpmn2.lrml.Side;
 
-public class ConjunctionAtom extends GenericRioOntoAtom {
+public class ConjunctionAtom extends BooleanAtom {
 
 	public ConjunctionAtom(Element node, String pred, Side s, XPathParser xpath) {
 		super(node, pred, s, xpath);
-	}
-
-	@Override
-	public List<RuleMLBlock> getArgumentsToTranslate() {
-		List<RuleMLBlock> arguments = getArguments();
-		// first argument is reification (although not reified), the rest are useful
-		return arguments.subList(1, arguments.size());
 	}
 
 	@Override
@@ -33,7 +26,7 @@ public class ConjunctionAtom extends GenericRioOntoAtom {
 		ret.add(translation);
 		List<Atom> definitionAtoms = getDefinitionAtoms(arguments);
 		for (Atom d : definitionAtoms)
-			if (!d.isRestriction()) {
+			if (!d.inline()) {
 				if (arguments.size() > 1)
 					ret.add("<li>");
 				ret.addAll(d.translate());
@@ -49,7 +42,7 @@ public class ConjunctionAtom extends GenericRioOntoAtom {
 	public String toString() {
 		if (getArgumentsToTranslate().size() == 1)
 			return "";
-		// Why children.get(0)? Because they are reified but without apex 
+		// Why children.get(0)? Because they are reified but without apex
 		String name = children.get(0).getName();
 		if (getLocalPredicate().equals("and"))
 			return "<span>(All of the following (" + name + "))</span>";

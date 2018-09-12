@@ -11,7 +11,6 @@ import lu.uni.dapreco.bpmn2.lrml.Atom;
 import lu.uni.dapreco.bpmn2.lrml.RuleMLBlock;
 import lu.uni.dapreco.bpmn2.lrml.Side;
 import lu.uni.dapreco.bpmn2.lrml.Variable;
-import lu.uni.dapreco.bpmn2.lrml.Side.SideType;
 
 public class DeonticAtom extends GenericRioOntoAtom {
 
@@ -31,20 +30,33 @@ public class DeonticAtom extends GenericRioOntoAtom {
 	public List<String> translate() {
 		List<String> ret = new ArrayList<String>();
 		List<RuleMLBlock> arguments = getArgumentsToTranslate();
-		if (getLocalPredicate().equals("Obliged")) {
-			// If child is a rioOnto:not, then it is rather a Prohibited
-			List<Atom> atoms = ((Variable) arguments.get(0)).getDefinitionAtoms(owner);
-			atoms.remove(this);
-			if (atoms.isEmpty() && owner.getPosition() == SideType.THEN)
-				atoms = ((Variable) arguments.get(0)).getDefinitionAtoms(owner.getOwnerRule().getLHS());
-			if (!atoms.isEmpty() && atoms.get(0).getClass() == NotAtom.class) {
+		BooleanAtom booleanAtom = ((Variable) arguments.get(0)).getBooleanAtom();
+		// If child is a rioOnto:not, then it is rather a Prohibited
+		if (booleanAtom instanceof NotAtom) {
+			if (getLocalPredicate().equals("Obliged")) {
 				predicateIRI = "rioOnto:Prohibited";
 				// But then I must not translate the not, but its child (not negated)
-				arguments.set(0, atoms.get(0).getArguments().get(1));
-				setArgument(0, atoms.get(0).getArguments().get(1));
+				RuleMLBlock newArg = booleanAtom.getArguments().get(1);
+				// arguments.set(0, newArg);
+				setArgument(0, newArg);
+				ret.add(toString());
+			} else if (getLocalPredicate().equals("Permitted")) {
+				// But then I must not translate the not, but its child (negated)
+				Variable v = (Variable) arguments.get(0);
+				RuleMLBlock newArg = booleanAtom.getArguments().get(1);
+				setArgument(0, newArg);
+				ret.add("At time " + getArguments().get(1).getName() + ", " + getArguments().get(2) + " is "
+						+ getLocalPredicate() + " that " + "</span>"
+						+ ((Variable) newArg).writeAsNegation(v.getName()));
 			}
-		}
-		ret.add(toString() + "<br />");
+		} else if (booleanAtom instanceof ConjunctionAtom) { // ConjunctionAtom
+			Atom atom = getDefinitionAtoms(arguments.get(0), this).get(0);
+			List<String> translation = atom.translate();
+			translation.set(0, "At time " + getArguments().get(1).getName() + ", " + getArguments().get(2) + " is "
+					+ getLocalPredicate() + " to </span>" + translation.get(0));
+			ret.addAll(translation);
+		} else
+			ret.add(toString());
 		return ret;
 	}
 
@@ -52,9 +64,10 @@ public class DeonticAtom extends GenericRioOntoAtom {
 	public String toString() {
 		String pred = getLocalPredicate();
 		List<RuleMLBlock> arguments = getArguments();
-		String object = arguments.get(0).toString();
+		Variable v = (Variable) arguments.get(0);
+		String object = v.toString();
 		return "At time " + arguments.get(1).getName() + ", " + arguments.get(2) + " is " + pred + " to " + object
-				+ "</span>";
+				+ "</span><br />";
 	}
 
 	@Override

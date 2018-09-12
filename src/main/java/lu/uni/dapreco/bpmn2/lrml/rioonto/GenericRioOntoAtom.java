@@ -34,7 +34,6 @@ public abstract class GenericRioOntoAtom extends Atom {
 		return null;
 	}
 
-	@Override
 	public abstract List<RuleMLBlock> getArgumentsToTranslate();
 
 	@Override
@@ -44,7 +43,7 @@ public abstract class GenericRioOntoAtom extends Atom {
 	public abstract String toString();
 
 	@Override
-	public boolean isRestriction() {
+	public boolean inline() {
 		return false;
 	}
 

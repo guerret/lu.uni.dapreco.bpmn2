@@ -104,9 +104,8 @@ public class Side extends BaseLRMLElement {
 				e = "UNKNOWN IMPLICATION";
 			}
 		}
-		ret.add(e + ", " + writeQuantifier() + ", ");
+		ret.add(e + ", " + writeQuantifier() + ",<br />");
 		ret.addAll(content.translate());
-		// ret.addAll(translateChild(content.root));
 		return ret;
 	}
 

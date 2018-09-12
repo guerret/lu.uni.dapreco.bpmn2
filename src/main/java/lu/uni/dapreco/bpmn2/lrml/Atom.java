@@ -6,6 +6,7 @@ import java.util.List;
 import org.w3c.dom.Element;
 
 import lu.uni.dapreco.bpmn2.XPathParser;
+import lu.uni.dapreco.bpmn2.lrml.rioonto.DeonticAtom;
 import lu.uni.dapreco.bpmn2.lrml.rioonto.GenericRioOntoAtom;
 
 public class Atom extends RuleMLBlock {
@@ -53,6 +54,10 @@ public class Atom extends RuleMLBlock {
 		return null;
 	}
 
+	public String getPrefix() {
+		return predicateIRI.substring(0, predicateIRI.indexOf(":"));
+	}
+
 	public String getLocalPredicate() {
 		return predicateIRI.substring(predicateIRI.indexOf(":") + 1);
 	}
@@ -75,14 +80,16 @@ public class Atom extends RuleMLBlock {
 		return children.subList(reified ? 1 : 0, children.size());
 	}
 
-	public List<RuleMLBlock> getArgumentsToTranslate() {
-		List<RuleMLBlock> ret = getArguments();
-		String pred = getLocalPredicate();
-		if (pred.equals("PersonalData") || pred.equals("Controller") || pred.equals("Store")
-				|| pred.equals("CompensationFor") || pred.equals("RelatedTo") || ret.size() == 1)
-			return children.subList(1, children.size());
-		return ret;
-	}
+	// public List<RuleMLBlock> getArgumentsToTranslate() {
+	// List<RuleMLBlock> ret = getArguments();
+	// String pred = getLocalPredicate();
+	// if (pred.equals("PersonalData") || pred.equals("Controller") ||
+	// pred.equals("Store")
+	// || pred.equals("CompensationFor") || pred.equals("RelatedTo") || ret.size()
+	// == 1)
+	// return children.subList(1, children.size());
+	// return ret;
+	// }
 
 	protected void setArgument(int index, RuleMLBlock b) {
 		children.set(reified ? index + 1 : index, b);
@@ -99,18 +106,7 @@ public class Atom extends RuleMLBlock {
 	@Override
 	public List<String> translate() {
 		List<String> ret = new ArrayList<String>();
-		List<RuleMLBlock> arguments = getArgumentsToTranslate();
-		String translation = toString() + "<br />";
-		ret.add(translation);
-		List<Atom> definitionAtoms = getDefinitionAtoms(arguments);
-		for (Atom d : definitionAtoms)
-			if (d.getArguments().size() > 1) {
-				// ret.addAll(d.translate());
-			}
-		if (translation.contains("<ol>"))
-			ret.add("</ol>");
-		if (translation.contains("<ul>"))
-			ret.add("</ul>");
+		ret.add(toString() + "<br />");
 		return ret;
 	}
 
@@ -125,8 +121,8 @@ public class Atom extends RuleMLBlock {
 		String not = "";
 		String eNot = "";
 		if (negation != null) {
-			not = "<strong>not</strong> " + getName() + " ";
-			eNot = "<strong>does not</strong> " + getName() + " ";
+			not = "<strong>not</strong> (" + getName() + ") ";
+			eNot = "<strong>does not</strong> (" + getName() + ") ";
 		}
 		switch (pred) {
 		// 1 argument
@@ -164,7 +160,7 @@ public class Atom extends RuleMLBlock {
 		case "AuthorizedBy":
 			return arguments.get(0) + " is " + not + predText + " " + arguments.get(1);
 		case "PersonalData":
-			return predText + " pertain " + not + "to " + arguments.get(1);
+			return predText + " is " + not + "relating to " + arguments.get(1);
 		case "nominates":
 			return arguments.get(0) + " " + eNot + predText + " " + arguments.get(1);
 		case "Controller":
@@ -177,8 +173,7 @@ public class Atom extends RuleMLBlock {
 		case "LegallyUnableTo":
 			return arguments.get(0) + " is " + not + predText + " perform operation " + arguments.get(1);
 		case "Identify":
-			return "There is " + not + "an " + predText + " operation performed by " + arguments.get(0) + " on "
-					+ arguments.get(1);
+			return arguments.get(0) + " " + eNot + predText + " " + arguments.get(1);
 		case "isBasedOn":
 			return "There is " + not + "a situation where " + arguments.get(0) + " " + predText + " "
 					+ arguments.get(1);
@@ -288,7 +283,16 @@ public class Atom extends RuleMLBlock {
 		return true;
 	}
 
-	public boolean isRestriction() {
+	/**
+	 * Method that verifies if the atom must only be expressed inline, without any
+	 * additional line specifying. The additional line would just say what the
+	 * variable is. This happens only for atoms that have only one argument, and not
+	 * always.
+	 * 
+	 * @return true if the atom must only be shown inline, false if it needs a
+	 *         separate line.
+	 */
+	public boolean inline() {
 		if (getArguments().size() > 1 || reified)
 			return false;
 		switch (getLocalPredicate()) {
@@ -307,15 +311,30 @@ public class Atom extends RuleMLBlock {
 		case "SexualData":
 		case "SexualOrientationData":
 		case "ViolationOf":
+		case "isBasedOn":
+		case "RelatedTo":
 			return false;
 		default:
 			return true;
 		}
 	}
 
+	/**
+	 * Method to determine whether an atom needs to be excluded from the potential
+	 * definitions, if the required variable is its first argument. No reified atom
+	 * is ever excluded. If it is not reified, then it is excluded if it is not a
+	 * dapreco: or prOnto: atom. Even if it is one, then it is excluded if it does
+	 * not define the atom.
+	 * 
+	 * @return
+	 */
 	public boolean isExclusion() {
+		if (reified || this instanceof DeonticAtom || this instanceof PredAtom)
+			return true;
 		switch (getLocalPredicate()) {
 		case "isBasedOn":
+		case "RelatedTo":
+		case "Store":
 			return true;
 		default:
 			return false;

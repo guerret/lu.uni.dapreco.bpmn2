@@ -6,21 +6,15 @@ import java.util.List;
 import org.w3c.dom.Element;
 
 import lu.uni.dapreco.bpmn2.XPathParser;
+import lu.uni.dapreco.bpmn2.lrml.Atom;
 import lu.uni.dapreco.bpmn2.lrml.RuleMLBlock;
 import lu.uni.dapreco.bpmn2.lrml.Side;
 import lu.uni.dapreco.bpmn2.lrml.Variable;
 
-public class NotAtom extends GenericRioOntoAtom {
+public class NotAtom extends BooleanAtom {
 
 	public NotAtom(Element node, String pred, Side s, XPathParser xpath) {
 		super(node, pred, s, xpath);
-	}
-
-	@Override
-	public List<RuleMLBlock> getArgumentsToTranslate() {
-		List<RuleMLBlock> arguments = getArguments();
-		// first argument is reification (although not reified), the rest are useful
-		return arguments.subList(1, arguments.size());
 	}
 
 	@Override
@@ -34,6 +28,17 @@ public class NotAtom extends GenericRioOntoAtom {
 	@Override
 	public String toString() {
 		return "";
+	}
+
+	@Override
+	public List<RuleMLBlock> getTranslated() {
+		List<RuleMLBlock> ret = new ArrayList<RuleMLBlock>();
+		ret.add(this);
+		List<RuleMLBlock> arguments = getArgumentsToTranslate();
+		List<Atom> definitionAtoms = getDefinitionAtoms(arguments);
+		for (Atom d : definitionAtoms)
+			ret.addAll(d.getTranslated());
+		return ret;
 	}
 
 }

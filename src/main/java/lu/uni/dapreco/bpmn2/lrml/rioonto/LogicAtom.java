@@ -31,13 +31,14 @@ public class LogicAtom extends GenericRioOntoAtom {
 
 	@Override
 	public String toString() {
+		List<RuleMLBlock> arguments = getArguments();
 		switch (getLocalPredicate()) {
 		case "cause":
-			return "<span>The fact " + children.get(0) + " is the cause of the fact " + children.get(1) + "</span>";
+			return "<span>The fact " + arguments.get(0) + " is the cause of the fact " + arguments.get(1) + "</span>";
 		case "imply":
-			return "<span>" + children.get(1) + " implies " + children.get(2) + "</span>";
+			return "<span>" + arguments.get(1) + " implies " + arguments.get(2) + "</span>";
 		case "partOf":
-			return "<span>" + children.get(0) + " is part of " + children.get(1) + "</span>";
+			return "<span>" + arguments.get(0) + " is part of " + arguments.get(1) + "</span>";
 		default:
 			return "UNKNOWN RIOONTO PREDICATE: " + predicateIRI;
 		}

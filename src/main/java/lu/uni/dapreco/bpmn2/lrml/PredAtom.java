@@ -13,7 +13,6 @@ public class PredAtom extends Atom {
 		super(node, pred, s, xpath);
 	}
 
-	@Override
 	public List<RuleMLBlock> getArgumentsToTranslate() {
 		List<RuleMLBlock> arguments = getArguments();
 		switch (getLocalPredicate()) {
@@ -59,7 +58,7 @@ public class PredAtom extends Atom {
 	}
 
 	@Override
-	public boolean isRestriction() {
+	public boolean inline() {
 		return false;
 	}
 

@@ -71,7 +71,7 @@ public class RexistAtTimeAtom extends GenericRioOntoAtom {
 		List<RuleMLBlock> arguments = getArgumentsToTranslate();
 		ret.add(this);
 		Atom bearer = owner.getOwnerRule().getBearer();
-		if (owner.getPosition() != SideType.THEN || bearer == null) {
+		if (owner.getPosition() != SideType.THEN || bearer == null || bearer != null) {
 			List<Atom> definitionAtoms = getDefinitionAtoms(arguments);
 			for (Atom d : definitionAtoms)
 				ret.addAll(d.getTranslated());
