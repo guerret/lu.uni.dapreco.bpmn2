@@ -29,12 +29,13 @@ public abstract class GenericRioOntoAtom extends Atom {
 			return new DeonticAtom(node, pred, s, xpath);
 		if (pred.startsWith("rioOnto:exception"))
 			return new ExceptionAtom(node, pred, s, xpath);
-		System.err.println("ERROR: UNKNOWN ATOM " + pred);
-		System.exit(0);
-		return null;
+		return new UnmanagedRioOntoAtom(node, pred, s, xpath);
 	}
 
-	public abstract List<RuleMLBlock> getArgumentsToTranslate();
+	public List<RuleMLBlock> getArgumentsToTranslate() {
+		// general rule: all arguments must be translated. Exceptions are in subclasses
+		return getArguments();
+	}
 
 	@Override
 	public abstract List<String> translate();

@@ -40,24 +40,11 @@ public class ConjunctionAtom extends BooleanAtom {
 
 	@Override
 	public String toString() {
-		if (getArgumentsToTranslate().size() == 1)
+		if (getArgumentsToTranslate().size() < 2)
 			return "";
-		// Why children.get(0)? Because they are reified but without apex
-		String name = children.get(0).getName();
 		if (getLocalPredicate().equals("and"))
-			return "<span>(All of the following (" + name + "))</span>";
-		return "<span>(At least one of the following (" + name + "))</span>";
-	}
-
-	@Override
-	public List<RuleMLBlock> getTranslated() {
-		List<RuleMLBlock> ret = new ArrayList<RuleMLBlock>();
-		ret.add(this);
-		List<RuleMLBlock> arguments = getArgumentsToTranslate();
-		List<Atom> definitionAtoms = getDefinitionAtoms(arguments);
-		for (Atom d : definitionAtoms)
-			ret.addAll(d.getTranslated());
-		return ret;
+			return "<span>(All of the following (" + getName() + "))</span>";
+		return "<span>(At least one of the following (" + getName() + "))</span>";
 	}
 
 }

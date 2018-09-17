@@ -16,13 +16,6 @@ public class LogicAtom extends GenericRioOntoAtom {
 	}
 
 	@Override
-	public List<RuleMLBlock> getArgumentsToTranslate() {
-		List<RuleMLBlock> arguments = getArguments();
-		// first argument is reification (although not reified), the rest are useful
-		return arguments.subList(1, arguments.size());
-	}
-
-	@Override
 	public List<String> translate() {
 		List<String> ret = new ArrayList<String>();
 		ret.add(toString() + "<br />");
@@ -36,7 +29,7 @@ public class LogicAtom extends GenericRioOntoAtom {
 		case "cause":
 			return "<span>The fact " + arguments.get(0) + " is the cause of the fact " + arguments.get(1) + "</span>";
 		case "imply":
-			return "<span>" + arguments.get(1) + " implies " + arguments.get(2) + "</span>";
+			return "<span>" + arguments.get(0) + " implies " + arguments.get(1) + "</span>";
 		case "partOf":
 			return "<span>" + arguments.get(0) + " is part of " + arguments.get(1) + "</span>";
 		default:

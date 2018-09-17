@@ -36,14 +36,14 @@ public class DeonticAtom extends GenericRioOntoAtom {
 			if (getLocalPredicate().equals("Obliged")) {
 				predicateIRI = "rioOnto:Prohibited";
 				// But then I must not translate the not, but its child (not negated)
-				RuleMLBlock newArg = booleanAtom.getArguments().get(1);
+				RuleMLBlock newArg = booleanAtom.getArguments().get(0);
 				// arguments.set(0, newArg);
 				setArgument(0, newArg);
 				ret.add(toString());
 			} else if (getLocalPredicate().equals("Permitted")) {
 				// But then I must not translate the not, but its child (negated)
 				Variable v = (Variable) arguments.get(0);
-				RuleMLBlock newArg = booleanAtom.getArguments().get(1);
+				RuleMLBlock newArg = booleanAtom.getArguments().get(0);
 				setArgument(0, newArg);
 				ret.add("At time " + getArguments().get(1).getName() + ", " + getArguments().get(2) + " is "
 						+ getLocalPredicate() + " that " + "</span>"

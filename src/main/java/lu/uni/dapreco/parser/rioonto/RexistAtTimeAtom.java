@@ -30,11 +30,10 @@ public class RexistAtTimeAtom extends GenericRioOntoAtom {
 			return bearer.translate();
 		List<String> ret = new ArrayList<String>();
 		List<RuleMLBlock> arguments = getArgumentsToTranslate();
-		String list = "<ul>";
-		ret.add(toString() + list);
+		ret.add(toString() + "<ul>");
 		List<Atom> definitionAtoms = getDefinitionAtoms(arguments);
 		for (Atom d : definitionAtoms)
-			if (d.getArguments().size() > 1) {
+			if (d.getArguments().size() > 0) {
 				ret.add("<li>");
 				ret.addAll(d.translate());
 				ret.add("</li>");

@@ -17,11 +17,6 @@ public class ExceptionAtom extends GenericRioOntoAtom {
 	}
 
 	@Override
-	public List<RuleMLBlock> getArgumentsToTranslate() {
-		return getArguments();
-	}
-
-	@Override
 	public List<String> translate() {
 		List<String> ret = new ArrayList<String>();
 		ret.add(toString() + "<br />");
