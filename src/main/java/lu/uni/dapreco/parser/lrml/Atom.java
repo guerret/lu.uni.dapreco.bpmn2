@@ -6,8 +6,8 @@ import java.util.List;
 import org.w3c.dom.Element;
 
 import lu.uni.dapreco.parser.XPathParser;
-import lu.uni.dapreco.parser.rioonto.DeonticAtom;
-import lu.uni.dapreco.parser.rioonto.GenericRioOntoAtom;
+import lu.uni.dapreco.parser.lrml.rioonto.DeonticAtom;
+import lu.uni.dapreco.parser.lrml.rioonto.GenericRioOntoAtom;
 
 public class Atom extends RuleMLBlock {
 

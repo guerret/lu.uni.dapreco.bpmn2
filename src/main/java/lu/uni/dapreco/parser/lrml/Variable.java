@@ -7,9 +7,9 @@ import org.w3c.dom.Element;
 
 import lu.uni.dapreco.parser.XPathParser;
 import lu.uni.dapreco.parser.lrml.Side.SideType;
-import lu.uni.dapreco.parser.rioonto.BooleanAtom;
-import lu.uni.dapreco.parser.rioonto.GenericRioOntoAtom;
-import lu.uni.dapreco.parser.rioonto.NotAtom;
+import lu.uni.dapreco.parser.lrml.rioonto.BooleanAtom;
+import lu.uni.dapreco.parser.lrml.rioonto.GenericRioOntoAtom;
+import lu.uni.dapreco.parser.lrml.rioonto.NotAtom;
 
 public class Variable extends RuleMLBlock {
 

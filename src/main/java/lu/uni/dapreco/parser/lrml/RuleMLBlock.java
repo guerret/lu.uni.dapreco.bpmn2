@@ -7,7 +7,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import lu.uni.dapreco.parser.XPathParser;
-import lu.uni.dapreco.parser.rioonto.ExceptionAtom;
+import lu.uni.dapreco.parser.lrml.rioonto.ExceptionAtom;
 
 public class RuleMLBlock extends BaseLRMLElement {
 

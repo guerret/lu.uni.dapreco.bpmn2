@@ -1,4 +1,4 @@
-package lu.uni.dapreco.parser.rioonto;
+package lu.uni.dapreco.parser.lrml.rioonto;
 
 import java.util.List;
 

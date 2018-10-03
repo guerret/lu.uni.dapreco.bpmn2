@@ -9,7 +9,7 @@ import org.w3c.dom.Node;
 import lu.uni.dapreco.parser.XPathParser;
 import lu.uni.dapreco.parser.lrml.LRMLParser.RuleType;
 import lu.uni.dapreco.parser.lrml.Side.SideType;
-import lu.uni.dapreco.parser.rioonto.DeonticAtom;
+import lu.uni.dapreco.parser.lrml.rioonto.DeonticAtom;
 
 public class Rule extends BaseLRMLElement {
 
