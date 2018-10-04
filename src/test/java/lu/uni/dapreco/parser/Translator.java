@@ -1,5 +1,6 @@
 package lu.uni.dapreco.parser;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 
@@ -38,6 +39,9 @@ public class Translator {
 
 	public static void main(String[] args) {
 		Translator test = new Translator();
+		File directory = new File(String.valueOf("outputs"));
+		if (!directory.exists())
+			directory.mkdir();
 		test.writeTranslation(RuleType.PERMISSIONS);
 		test.writeTranslation(RuleType.OBLIGATIONS);
 		test.writeTranslation(RuleType.CONSTITUTIVE);
