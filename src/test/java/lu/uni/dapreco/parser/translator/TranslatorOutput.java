@@ -1,4 +1,4 @@
-package lu.uni.dapreco.parser;
+package lu.uni.dapreco.parser.translator;
 
 public class TranslatorOutput {
 

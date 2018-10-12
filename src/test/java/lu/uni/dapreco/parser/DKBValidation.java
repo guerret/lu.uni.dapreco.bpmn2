@@ -19,6 +19,7 @@ import lu.uni.dapreco.parser.lrml.LRMLParser;
 import lu.uni.dapreco.parser.lrml.Statement;
 import lu.uni.dapreco.parser.lrml.StatementSet;
 import lu.uni.dapreco.parser.lrml.LRMLParser.RuleType;
+import lu.uni.dapreco.parser.translator.TranslatorOutput;
 
 public class DKBValidation {
 

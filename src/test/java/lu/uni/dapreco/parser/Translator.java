@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 
 import lu.uni.dapreco.parser.lrml.LRMLParser.RuleType;
+import lu.uni.dapreco.parser.translator.TranslatorOutput;
 
 public class Translator {
 
