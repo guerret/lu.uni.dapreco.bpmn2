@@ -17,6 +17,9 @@ public class PrOntoParser {
 	protected static Ontology ontology;
 	private static final String ontoPrefix = "https://w3id.org/ontology/pronto#";
 
+	private static final String taskexns = "http://www.ontologydesignpatterns.org/cp/owl/taskexecution.owl";
+	private static final String taskexnsseparator = "#";
+
 	public PrOntoParser() {
 		URL url = PrOntoParser.class.getResource(OWL_FILE);
 		ontology = new Ontology(url, ontoPrefix);
@@ -48,7 +51,7 @@ public class PrOntoParser {
 	}
 
 	public String[] getActions() {
-		OWLClass actionClass = ontology.getClassByFullLabel("Action", "http://purl.org/spar/pwo/");
+		OWLClass actionClass = ontology.getClassByFullLabel("Action", taskexns + taskexnsseparator);
 		Set<OWLClass> subClasses = ontology.getDirectSubClasses(actionClass);
 		return ontology.getLabels(subClasses);
 	}
