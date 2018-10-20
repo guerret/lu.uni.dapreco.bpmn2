@@ -3,6 +3,6 @@
     <uri id="Imports Wizard Entry" name="http://purl.org/spar/pwo/2017-06-01" uri="https://raw.githubusercontent.com/SPAROntologies/pwo/master/docs/current/pwo.owl"/>
     <uri id="Imports Wizard Entry" name="http://www.estrellaproject.org/lkif-core/lkif-core.owl" uri="lkif-core-master/lkif-core.owl"/>
     <group id="Folder Repository, directory=, recursive=true, Auto-Update=true, version=2" prefer="public" xml:base="">
-        <uri id="Automatically generated entry, Timestamp=1539957873880" name="https://w3id.org/ontology/pronto" uri="pronto.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1540041030886" name="https://w3id.org/ontology/pronto" uri="pronto.owl"/>
     </group>
 </catalog>

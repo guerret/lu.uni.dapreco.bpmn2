@@ -6,7 +6,6 @@
      xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
      xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
      ontologyIRI="https://w3id.org/ontology/pronto">
-    <Prefix name="" IRI="https://w3id.org/ontology/pronto"/>
     <Prefix name="dc" IRI="http://purl.org/dc/elements/1.1/"/>
     <Prefix name="dul" IRI="http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#"/>
     <Prefix name="owl" IRI="http://www.w3.org/2002/07/owl#"/>
@@ -16,136 +15,110 @@
     <Prefix name="xsd" IRI="http://www.w3.org/2001/XMLSchema#"/>
     <Prefix name="rdfs" IRI="http://www.w3.org/2000/01/rdf-schema#"/>
     <Prefix name="role" IRI="http://www.estrellaproject.org/lkif-core/role.owl#"/>
-    <Prefix name="skos" IRI="http://www.w3.org/2004/02/skos/core#"/>
+    <Prefix name="skos" IRI="http://http://www.ontologydesignpatterns.org/cp/owl/taskexecution.owl#"/>
+    <Prefix name="allot" IRI="https://w3id.org/akn/ontology/allot/"/>
     <Prefix name="terms" IRI="http://purl.org/dc/terms/"/>
     <Prefix name="action" IRI="http://www.estrellaproject.org/lkif-core/action.owl#"/>
     <Prefix name="owlapi" IRI="http://www.semanticweb.org/owlapi#"/>
     <Prefix name="pronto" IRI="https://w3id.org/ontology/pronto#"/>
+    <Prefix name="taskex" IRI="http://www.ontologydesignpatterns.org/cp/owl/taskexecution.owl#"/>
     <Prefix name="cpannotationschema" IRI="http://www.ontologydesignpatterns.org/schemas/cpannotationschema.owl#"/>
-    <Import>https://w3id.org/akn/ontology/allot/2017-04-21</Import>
     <Import>http://purl.org/spar/pwo/2017-06-01</Import>
     <Declaration>
-        <Class IRI="#InternationalOrganization"/>
-    </Declaration>
-    <Declaration>
-        <Class IRI="#DataSubject"/>
-    </Declaration>
-    <Declaration>
-        <Class IRI="#Transmit"/>
-    </Declaration>
-    <Declaration>
-        <Class IRI="#PermanentErase"/>
-    </Declaration>
-    <Declaration>
-        <Class IRI="#Document"/>
-    </Declaration>
-    <Declaration>
-        <ObjectProperty IRI="#relatedTo"/>
-    </Declaration>
-    <Declaration>
-        <Class IRI="#Infer"/>
-    </Declaration>
-    <Declaration>
-        <Class IRI="#Delete"/>
-    </Declaration>
-    <Declaration>
-        <Class IRI="#Purpose"/>
-    </Declaration>
-    <Declaration>
-        <ObjectProperty IRI="#defines"/>
-    </Declaration>
-    <Declaration>
-        <Class IRI="#GeneticData"/>
-    </Declaration>
-    <Declaration>
-        <Class IRI="#BiometricData"/>
+        <Class abbreviatedIRI="action:Agent"/>
     </Declaration>
     <Declaration>
         <Class abbreviatedIRI="action:Organisation"/>
     </Declaration>
     <Declaration>
-        <Class IRI="#HealthData"/>
-    </Declaration>
-    <Declaration>
-        <Class IRI="#SexualData"/>
-    </Declaration>
-    <Declaration>
-        <Class IRI="#Data"/>
-    </Declaration>
-    <Declaration>
-        <Class IRI="#NonPersonalData"/>
-    </Declaration>
-    <Declaration>
-        <Class IRI="#JudicialData"/>
-    </Declaration>
-    <Declaration>
-        <Class IRI="#Destroy"/>
-    </Declaration>
-    <Declaration>
-        <Class IRI="#LegalPersonData"/>
-    </Declaration>
-    <Declaration>
-        <DataProperty IRI="#lawfulness"/>
-    </Declaration>
-    <Declaration>
-        <Class abbreviatedIRI="action:Agent"/>
-    </Declaration>
-    <Declaration>
-        <Class IRI="#InformationObject"/>
-    </Declaration>
-    <Declaration>
         <Class abbreviatedIRI="action:Person"/>
-    </Declaration>
-    <Declaration>
-        <Class IRI="#Observe"/>
-    </Declaration>
-    <Declaration>
-        <Class IRI="#EthnicData"/>
-    </Declaration>
-    <Declaration>
-        <Class IRI="#Contract"/>
-    </Declaration>
-    <Declaration>
-        <DataProperty IRI="#pseudonymized"/>
-    </Declaration>
-    <Declaration>
-        <Class IRI="#Anonymise"/>
-    </Declaration>
-    <Declaration>
-        <Class IRI="#PersonalData"/>
-    </Declaration>
-    <Declaration>
-        <Class IRI="#Derive"/>
-    </Declaration>
-    <Declaration>
-        <Class IRI="#Communicate"/>
-    </Declaration>
-    <Declaration>
-        <ObjectProperty IRI="#isDescribedBy"/>
-    </Declaration>
-    <Declaration>
-        <Class IRI="#Store"/>
-    </Declaration>
-    <Declaration>
-        <ObjectProperty IRI="#isBasedOn"/>
-    </Declaration>
-    <Declaration>
-        <Class IRI="#Provide"/>
-    </Declaration>
-    <Declaration>
-        <Class IRI="#Controller"/>
-    </Declaration>
-    <Declaration>
-        <Class IRI="#Consent"/>
-    </Declaration>
-    <Declaration>
-        <ObjectProperty IRI="#nominates"/>
     </Declaration>
     <Declaration>
         <Class abbreviatedIRI="role:Role"/>
     </Declaration>
     <Declaration>
-        <Class IRI="#SensitiveData"/>
+        <Class abbreviatedIRI="allot:Event"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="allot:FRBRWork"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Anonymise"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#AnonymousData"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#BiometricData"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Communicate"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Consent"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Contract"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Controller"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Data"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#DataSubject"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Delete"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Derive"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Destroy"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Document"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#EthnicData"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#GeneticData"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#HealthData"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Infer"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#InformationObject"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#InternationalOrganization"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#JudicialData"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#LegalPersonData"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#NonPersonalData"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Observe"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#OpinionData"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#PermanentErase"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#PersonalData"/>
     </Declaration>
     <Declaration>
         <Class IRI="#PersonalDataProcessing"/>
@@ -154,19 +127,55 @@
         <Class IRI="#Processor"/>
     </Declaration>
     <Declaration>
-        <Class IRI="#AnonymousData"/>
+        <Class IRI="#Provide"/>
     </Declaration>
     <Declaration>
         <Class IRI="#Pseudonymise"/>
     </Declaration>
     <Declaration>
-        <Class IRI="#OpinionData"/>
+        <Class IRI="#Purpose"/>
     </Declaration>
     <Declaration>
-        <Class IRI="https://w3id.org/akn/ontology/allot/FRBRWork"/>
+        <Class IRI="#SensitiveData"/>
     </Declaration>
     <Declaration>
-        <Class IRI="https://w3id.org/akn/ontology/allot/Event"/>
+        <Class IRI="#SexualData"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Store"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Transmit"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#defines"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#isBasedOn"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#isDescribedBy"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#nominates"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#relatedTo"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="#lawfulness"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="#pseudonymized"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="taskex:Action"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty abbreviatedIRI="pwo:needs"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="pwo:Workflow"/>
     </Declaration>
     <SubClassOf>
         <Class abbreviatedIRI="action:Organisation"/>
@@ -190,11 +199,11 @@
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Communicate"/>
-        <Class IRI="http://www.ontologydesignpatterns.org/cp/owl/taskexecution.owl#Action"/>
+        <Class abbreviatedIRI="taskex:Action"/>
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Consent"/>
-        <Class IRI="http://www.ontologydesignpatterns.org/cp/owl/taskexecution.owl#Action"/>
+        <Class abbreviatedIRI="taskex:Action"/>
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Contract"/>
@@ -214,11 +223,11 @@
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Delete"/>
-        <Class IRI="http://www.ontologydesignpatterns.org/cp/owl/taskexecution.owl#Action"/>
+        <Class abbreviatedIRI="taskex:Action"/>
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Derive"/>
-        <Class IRI="http://www.ontologydesignpatterns.org/cp/owl/taskexecution.owl#Action"/>
+        <Class abbreviatedIRI="taskex:Action"/>
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Destroy"/>
@@ -242,11 +251,11 @@
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Infer"/>
-        <Class IRI="http://www.ontologydesignpatterns.org/cp/owl/taskexecution.owl#Action"/>
+        <Class abbreviatedIRI="taskex:Action"/>
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#InformationObject"/>
-        <Class IRI="https://w3id.org/akn/ontology/allot/FRBRWork"/>
+        <Class abbreviatedIRI="allot:FRBRWork"/>
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#InternationalOrganization"/>
@@ -266,7 +275,7 @@
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Observe"/>
-        <Class IRI="http://www.ontologydesignpatterns.org/cp/owl/taskexecution.owl#Action"/>
+        <Class abbreviatedIRI="taskex:Action"/>
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#OpinionData"/>
@@ -290,7 +299,7 @@
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Provide"/>
-        <Class IRI="http://www.ontologydesignpatterns.org/cp/owl/taskexecution.owl#Action"/>
+        <Class abbreviatedIRI="taskex:Action"/>
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Pseudonymise"/>
@@ -306,11 +315,11 @@
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Store"/>
-        <Class IRI="http://www.ontologydesignpatterns.org/cp/owl/taskexecution.owl#Action"/>
+        <Class abbreviatedIRI="taskex:Action"/>
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Transmit"/>
-        <Class IRI="http://www.ontologydesignpatterns.org/cp/owl/taskexecution.owl#Action"/>
+        <Class abbreviatedIRI="taskex:Action"/>
     </SubClassOf>
     <SubObjectPropertyOf>
         <ObjectProperty IRI="#relatedTo"/>
@@ -318,7 +327,7 @@
     </SubObjectPropertyOf>
     <ObjectPropertyDomain>
         <ObjectProperty IRI="#defines"/>
-        <Class IRI="https://w3id.org/akn/ontology/allot/Event"/>
+        <Class abbreviatedIRI="allot:Event"/>
     </ObjectPropertyDomain>
     <ObjectPropertyDomain>
         <ObjectProperty IRI="#isBasedOn"/>
@@ -372,5 +381,5 @@
 
 
 
-<!-- Generated by the OWL API (version 4.2.8.20170104-2310) https://github.com/owlcs/owlapi -->
+<!-- Generated by the OWL API (version 4.5.6.2018-09-06T00:27:41Z) https://github.com/owlcs/owlapi -->
 
