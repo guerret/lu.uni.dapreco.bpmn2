@@ -10,6 +10,7 @@ public class FormulaeLister {
 	// private final static String lrmlLocal = resDir +l "/" + lrmlName;
 
 	private static String ontoPrefix = "prOnto";
+	private static String daprecoPrefix = "dapreco";
 	private static String predicate = "Transmit";
 
 	public static void main(String[] args) {
@@ -17,9 +18,10 @@ public class FormulaeLister {
 		LRMLParser lParser = new LRMLParser(lrmlURI);
 		// AKNParser aParser = new AKNParser(aknURI);
 		System.out.println("PROVISIONS FOR ACTION: " + predicate);
+		String[] exclusions = { daprecoPrefix + ":ThirdCountry" };
 		String[] articles = lParser.findArticles(ontoPrefix + ":" + predicate);
 		for (String s : articles) {
-			String[] formulae = lParser.findFormulaeForArticle(s, RuleType.ALL);
+			String[] formulae = lParser.findFormulaeForArticleNotContaining(s, RuleType.ALL, exclusions);
 			for (String f : formulae)
 				System.out.println(f);
 		}

@@ -345,4 +345,8 @@ public class Atom extends RuleMLBlock {
 		negation = n;
 	}
 
+	public boolean hasPredicate() {
+		return predicateIRI.equals("pronto:ThirdCountry");
+	}
+
 }

@@ -2,6 +2,7 @@ package lu.uni.dapreco.parser.lrml;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,6 +90,45 @@ public class LRMLParser {
 		return articles;
 	}
 
+	public String[] findArticlesNotContaining(String predicate, String[] exclusions) {
+		Statement[] statements = getRealStatementsForPredicate(predicate);
+		List<String> articles = new ArrayList<String>();
+		for (int i = 0; i < statements.length; i++) {
+			Statement statement = statements[i];
+			boolean check = true;
+			for (String ex : exclusions) {
+				if (statement.getRule().getLHS().hasPredicate(ex.substring(ex.indexOf(':') + 1))) {
+					check = false;
+					break;
+				}
+			}
+			if (check) {
+				String statementName = statement.toString();
+				String statementSetName = statementName.substring(0, statementName.indexOf("Formula"));
+				Association association = Association.createFromStatement(statementSetName, xpath);
+				String source = association.getSource().substring("#".length());
+				LegalReference lr = LegalReference.createFromReference(source, xpath);
+				String refID = lr.getRefID();
+				articles.add(refID);
+			}
+		}
+		return articles.toArray(new String[articles.size()]);
+	}
+
+	private Statement[] getRealStatementsForPredicate(String predicate) {
+		String search = "/lrml:LegalRuleML/lrml:Statements[descendant::ruleml:if[descendant::ruleml:Rel[@iri='"
+				+ predicate + "']]]";
+		NodeList nl = xpath.parse(search);
+		List<Statement> statements = new ArrayList<Statement>();
+		for (int i = 0; i < nl.getLength(); i++) {
+			Element elem = (Element) (nl.item(i));
+			StatementSet set = new StatementSet(elem, xpath);
+			for (Statement s : set.getStatements())
+				statements.add(s);
+		}
+		return statements.toArray(new Statement[statements.size()]);
+	}
+
 	private String[] getStatementsForPredicate(String predicate) {
 		String search = "/lrml:LegalRuleML/lrml:Statements[descendant::ruleml:if[descendant::ruleml:Rel[@iri='"
 				+ predicate + "']]]/@key";
@@ -125,6 +165,24 @@ public class LRMLParser {
 			formulae[i] = xpath.parseNode(search, statements[i]).item(0).getNodeValue().trim();
 		}
 		return formulae;
+	}
+
+	public String[] findFormulaeForArticleNotContaining(String article, RuleType type, String[] exclusions) {
+		Node[] statements = getStatementNodesForArticle(article, type);
+		List<String> formulae = new ArrayList<String>();
+		for (int i = 0; i < statements.length; i++) {
+			String search = "comment()";
+			String formula = xpath.parseNode(search, statements[i]).item(0).getNodeValue().trim();
+			boolean exclude = false;
+			for (String ex : exclusions)
+				if (formula.contains(ex)) {
+					exclude = true;
+					break;
+				}
+			if (!exclude)
+				formulae.add(formula);
+		}
+		return formulae.toArray(new String[formulae.size()]);
 	}
 
 	public Node[] getStatementNodesForArticle(String article, RuleType type) {

@@ -138,6 +138,10 @@ public class Side extends BaseLRMLElement {
 		return content.equals(side.content);
 	}
 
+	public boolean hasPredicate(String pred) {
+		return content.hasPredicate(pred);
+	}
+
 	public String toString() {
 		return rule.getOwnerStatement().getName() + " - " + position;
 	}

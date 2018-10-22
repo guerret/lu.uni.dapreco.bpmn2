@@ -222,4 +222,11 @@ public class RuleMLBlock extends BaseLRMLElement {
 		return ret;
 	}
 
+	public boolean hasPredicate(String pred) {
+		for (RuleMLBlock child : children)
+			if (child.hasPredicate(pred))
+				return true;
+		return false;
+	}
+
 }

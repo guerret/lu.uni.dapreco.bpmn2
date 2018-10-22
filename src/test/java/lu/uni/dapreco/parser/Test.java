@@ -27,6 +27,7 @@ public class Test {
 		// String[] actions = p.getActions();
 		// for (String predicate : actions) {
 		System.out.println("PROVISIONS FOR ACTION: " + predicate);
+		String[] exclusions = { ontoPrefix + ":ThirdCountryx" };
 		String[] articles = lParser.findArticles(ontoPrefix + ":" + predicate);
 		for (String s : articles) {
 			s = s.substring((aknPrefix + ":").length());

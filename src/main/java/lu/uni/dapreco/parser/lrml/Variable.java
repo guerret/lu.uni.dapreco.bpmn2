@@ -15,6 +15,7 @@ public class Variable extends RuleMLBlock {
 
 	private String name;
 	private String predicate;
+	private String predicateText;
 	private RuleMLBlock parent;
 
 	public Variable(Element node, RuleMLBlock p, XPathParser xpath) {
@@ -33,24 +34,31 @@ public class Variable extends RuleMLBlock {
 	}
 
 	public String toString() {
-		return getPredicate() + " (" + name + ")";
+		return getPredicateText() + " (" + name + ")";
 	}
 
-	public String getPredicate() {
+	public void setPredicate() {
 		if (predicate == null) {
 			List<Atom> atoms = getDefinitionAtoms(owner);
 			if (atoms.isEmpty() && owner.getPosition() == SideType.THEN)
 				atoms = getDefinitionAtoms(owner.getOwnerRule().getLHS());
 			if (!atoms.isEmpty()) {
 				Atom atom = atoms.get(0);
+				predicate = atom.getLocalPredicate();
 				if (atom instanceof GenericRioOntoAtom)
 					predicate = "The <strong>" + atom.getLocalPredicate() + "</strong> situation denoted by";
 				else
-					predicate = "<strong>" + atom.getLocalPredicate() + "</strong>";
-			} else
-				predicate = "<strong>Thing</strong>";
+					predicateText = "<strong>" + predicate + "</strong>";
+			} else {
+				predicate = "Thing";
+				predicateText = "<strong>Thing</strong>";
+			}
 		}
-		return predicate;
+	}
+
+	public String getPredicateText() {
+		setPredicate();
+		return predicateText;
 	}
 
 	public List<Atom> getDefinitionAtoms(Side side) {
@@ -108,6 +116,11 @@ public class Variable extends RuleMLBlock {
 	public NotAtom getNotAtom() {
 		BooleanAtom atom = getBooleanAtom();
 		return atom instanceof NotAtom ? (NotAtom) atom : null;
+	}
+
+	public boolean hasPredicate(String pred) {
+		setPredicate();
+		return predicate.equals(pred);
 	}
 
 }
