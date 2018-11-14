@@ -23,5 +23,10 @@
 			<artifactId>owlapi-osgidistribution</artifactId>
 			<version>4.0.2</version>
 		</dependency>
+		<dependency>
+			<groupId>javax.xml.bind</groupId>
+			<artifactId>jaxb-api</artifactId>
+			<version>2.3.1</version>
+		</dependency>
 	</dependencies>
 </project>
