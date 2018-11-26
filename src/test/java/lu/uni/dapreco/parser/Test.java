@@ -1,7 +1,7 @@
 package lu.uni.dapreco.parser;
 
 import lu.uni.dapreco.parser.akn.AKNParser;
-import lu.uni.dapreco.parser.lrml.LRMLParser;
+import lu.uni.dapreco.parser.lrml.jaxb.LRMLParser;
 
 public class Test {
 
@@ -28,12 +28,12 @@ public class Test {
 		// for (String predicate : actions) {
 		System.out.println("PROVISIONS FOR ACTION: " + predicate);
 		String[] exclusions = { ontoPrefix + ":ThirdCountryx" };
-		String[] articles = lParser.findArticles(ontoPrefix + ":" + predicate);
-		for (String s : articles) {
-			s = s.substring((aknPrefix + ":").length());
-			System.out.println(aParser.getTextFromEId(s));
-			System.out.println();
-		}
+//		String[] articles = lParser.findArticles(ontoPrefix + ":" + predicate);
+//		for (String s : articles) {
+//			s = s.substring((aknPrefix + ":").length());
+//			System.out.println(aParser.getTextFromEId(s));
+//			System.out.println();
+//		}
 		// }
 	}
 

@@ -18,6 +18,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
 
 import lu.uni.dapreco.parser.XPathParser;
 import lu.uni.dapreco.parser.lrml.ContextMap;
@@ -48,7 +49,7 @@ public class LRMLParser {
 
 	public static ContextMap contextMap;
 
-	public LRMLParser() {
+	public LRMLParser(String lrmlURI) {
 		LegalRuleML lrml;
 		try {
 			JAXBContext jaxbContext = JAXBContext.newInstance(LegalRuleML.class);
@@ -67,8 +68,34 @@ public class LRMLParser {
 		}
 	}
 
+	public String[] findArticles(String predicate) {
+		String[] statements = getStatementsForPredicate(predicate);
+		String[] articles = new String[statements.length];
+		for (int i = 0; i < statements.length; i++) {
+			String statement = statements[i];
+			Association association = Association.createFromStatement(statement, xpath);
+			String source = association.getSource().replaceAll("#", "");
+			LegalReference lr = LegalReference.createFromReference(source, xpath);
+			String refID = lr.getRefID();
+			articles[i] = refID;
+		}
+		return articles;
+	}
+
+	private String[] getStatementsForPredicate(String predicate) {
+		String search = "/lrml:LegalRuleML/lrml:Statements[descendant::ruleml:if[descendant::ruleml:Rel[@iri='"
+				+ predicate + "']]]/@key";
+		String[] statements = null;
+		NodeList nl = xpath.parse(search);
+		statements = new String[nl.getLength()];
+		for (int i = 0; i < nl.getLength(); i++) {
+			statements[i] = nl.item(i).getNodeValue();
+		}
+		return statements;
+	}
+
 	public static void main(String[] args) {
-		LRMLParser lrmlParser = new LRMLParser();
+		LRMLParser lrmlParser = new LRMLParser(lrmlURI);
 		System.out.println("ciao");
 	}
 

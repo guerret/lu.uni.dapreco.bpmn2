@@ -7,14 +7,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "Association", namespace = LegalRuleML.lrmlNS)
 public class Association {
 
-	private static class AppliesSource {
-
-		@XmlAttribute
-		public String keyref;
-
-	}
-
-	private static class ToTarget {
+	private static class AssociationData {
 
 		@XmlAttribute
 		public String keyref;
@@ -22,17 +15,17 @@ public class Association {
 	}
 
 	@XmlElement(name = "appliesSource", namespace = LegalRuleML.lrmlNS)
-	private AppliesSource source;
+	private AssociationData source;
 
 	public String getSource() {
 		return source.keyref;
 	}
 
 	@XmlElement(name = "toTarget", namespace = LegalRuleML.lrmlNS)
-	private ToTarget target;
+	private AssociationData target;
 
 	public String getTarget() {
 		return target.keyref;
 	}
-	
+
 }

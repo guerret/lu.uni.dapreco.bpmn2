@@ -67,7 +67,7 @@ public class LegalRuleML {
 	public static String lrmlPrefix = "lrml";
 	public static final String lrmlNS = "http://docs.oasis-open.org/legalruleml/ns/v1.0/";
 	public static String rulemlPrefix = "ruleml";
-	public static String rulemlNS = "http://ruleml.org/spec";
+	public static final String rulemlNS = "http://ruleml.org/spec";
 	public static String xmlPrefix = "xml";
 	public static String xmlNS = XMLConstants.XML_NS_URI;
 
